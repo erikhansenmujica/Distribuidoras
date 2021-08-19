@@ -1,107 +1,27 @@
 import * as React from "react";
-import { StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { StyleSheet, ScrollView } from "react-native";
 import { Text, View } from "../../components/Themed";
 import actualDimensions from "../../dimensions";
 import faker from "faker";
+import axios from "axios";
+import ApiUrl from "../../constants/ApiUrl";
+import Loading from "../../components/Loading";
 
 
-export default function ({ routeSelected }: { routeSelected: number }) {
-  
-const data = {
-    clients: [
-      {
-        id: Math.round(Math.random() * 1000),
-        products: Math.round(Math.random() * 1000),
-        name: faker.name.findName(),
-        direction: faker.address.streetAddress(),
-      },
-      {
-        id: Math.round(Math.random() * 1000),
-        products: Math.round(Math.random() * 1000),
-        name: faker.name.findName(),
-        direction: faker.address.streetAddress(),
-      },
-      {
-        id: Math.round(Math.random() * 1000),
-        products: Math.round(Math.random() * 1000),
-        name: faker.name.findName(),
-        direction: faker.address.streetAddress(),
-      },
-      {
-        id: Math.round(Math.random() * 1000),
-        products: Math.round(Math.random() * 1000),
-        name: faker.name.findName(),
-        direction: faker.address.streetAddress(),
-      },
-      {
-        id: Math.round(Math.random() * 1000),
-        products: Math.round(Math.random() * 1000),
-        name: faker.name.findName(),
-        direction: faker.address.streetAddress(),
-      },
-      {
-        id: Math.round(Math.random() * 1000),
-        products: Math.round(Math.random() * 1000),
-        name: faker.name.findName(),
-        direction: faker.address.streetAddress(),
-      },
-      {
-        id: Math.round(Math.random() * 1000),
-        products: Math.round(Math.random() * 1000),
-        name: faker.name.findName(),
-        direction: faker.address.streetAddress(),
-      },
-      {
-        id: Math.round(Math.random() * 1000),
-        products: Math.round(Math.random() * 1000),
-        name: faker.name.findName(),
-        direction: faker.address.streetAddress(),
-      },
-      {
-        id: Math.round(Math.random() * 1000),
-        products: Math.round(Math.random() * 1000),
-        name: faker.name.findName(),
-        direction: faker.address.streetAddress(),
-      },
-      {
-        id: Math.round(Math.random() * 1000),
-        products: Math.round(Math.random() * 1000),
-        name: faker.name.findName(),
-        direction: faker.address.streetAddress(),
-      },
-      {
-        id: Math.round(Math.random() * 1000),
-        products: Math.round(Math.random() * 1000),
-        name: faker.name.findName(),
-        direction: faker.address.streetAddress(),
-      },
-      {
-        id: Math.round(Math.random() * 1000),
-        products: Math.round(Math.random() * 1000),
-        name: faker.name.findName(),
-        direction: faker.address.streetAddress(),
-      },
-      {
-        id: Math.round(Math.random() * 1000),
-        products: Math.round(Math.random() * 1000),
-        name: faker.name.findName(),
-        direction: faker.address.streetAddress(),
-      },
-      {
-        id: Math.round(Math.random() * 1000),
-        products: Math.round(Math.random() * 1000),
-        name: faker.name.findName(),
-        direction: faker.address.streetAddress(),
-      },
-      {
-        id: Math.round(Math.random() * 1000),
-        products: Math.round(Math.random() * 1000),
-        name: faker.name.findName(),
-        direction: faker.address.streetAddress(),
-      },
-    ],
-  };
-    return (
+export default function ({ routeSelected, user }: { routeSelected: number; user:any}) {
+  const [clients, setClients]= React.useState([])
+  const [loading, setLoading ] =React.useState(false)
+  async function getClients() {
+    setLoading(true)
+    const res=await axios.post(ApiUrl+"/route/clients/"+routeSelected,user )
+    setLoading(false)
+    setClients(res.data)
+  }
+  React.useEffect(()=>{
+    getClients()
+  },[routeSelected])
+
+    return loading?<Loading title=""/>:!clients.length?<Text>No hay clientes en esta ruta.</Text>:(
     <View >
       <View style={styles.boxes}>
             <Text style={styles.pColumn}>Pr...</Text>
@@ -109,11 +29,11 @@ const data = {
             <Text style={styles.dColumn}>Dirección</Text>
           </View>
       <ScrollView contentContainerStyle={styles.container}>
-        {data.clients.map((route) => (
-          <View style={styles.boxes} key={route.id}>
-            <Text style={styles.productColumn}>{route.id}</Text>
-            <Text style={styles.nameColumn}>{route.name}</Text>
-            <Text style={styles.directionColumn}>{route.direction}</Text>
+        {clients.map((c) => (
+          <View style={styles.boxes} key={c.codigo}>
+            <Text style={styles.productColumn}>{c.codigo}</Text>
+            <Text style={styles.nameColumn}>{c.nombre}</Text>
+            <Text style={styles.directionColumn}>{c.direccion}</Text>
           </View>
         ))}
       </ScrollView>

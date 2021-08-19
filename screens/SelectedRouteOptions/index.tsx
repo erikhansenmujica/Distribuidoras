@@ -1,11 +1,14 @@
 import * as React from "react";
 import { TouchableOpacity } from "react-native";
 import { Button, StyleSheet } from "react-native";
+import { useSelector } from "react-redux";
 import { Text, View } from "../../components/Themed";
 import actualDimensions from "../../dimensions";
+import { RootState } from "../../store/reducers";
 import ClientsPerRoute from "../RouteSelectionComponents/ClientsPerRoute";
 
-export default function ({route, navigation}) {
+export default function ({ route, navigation }) {
+  const user= useSelector((state: RootState)=>state.user.data)
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Ruta {route.params.routeSelected}</Text>
@@ -15,9 +18,9 @@ export default function ({route, navigation}) {
         darkColor="rgba(255,255,255,0.1)"
       />
       <View style={styles.heightContainer}>
-      <ClientsPerRoute routeSelected={route.params.routeSelected} />
+        <ClientsPerRoute routeSelected={route.params.routeSelected} user={user}/>
       </View>
-    
+
       <View style={styles.buttonsContainer}>
         <TouchableOpacity style={styles.button} onPress={() => ""}>
           <Text style={styles.text}> Pedido extra</Text>
@@ -52,13 +55,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   title: {
-    fontSize: actualDimensions.height*0.035,
+    fontSize: actualDimensions.height * 0.035,
     fontWeight: "bold",
   },
   separator: {
-    marginVertical: actualDimensions.height*0.03,
-    height: actualDimensions.height*0.003,
-    width: actualDimensions.width*0.8,
+    marginVertical: actualDimensions.height * 0.03,
+    height: actualDimensions.height * 0.003,
+    width: actualDimensions.width * 0.8,
   },
   buttonsContainer: {
     display: "flex",
@@ -80,8 +83,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    display:"flex",
-    justifyContent:"center"
+    display: "flex",
+    justifyContent: "center",
   },
   text: {
     textAlign: "center",
@@ -89,7 +92,7 @@ const styles = StyleSheet.create({
   },
   heightContainer: {
     height: actualDimensions.height * 0.4,
-    marginBottom:actualDimensions.height * 0.05
+    marginBottom: actualDimensions.height * 0.05,
   },
   cerrarPedidos: {
     height: actualDimensions.height * 0.08,
@@ -104,7 +107,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    display:"flex",
-    justifyContent:"center"
+    display: "flex",
+    justifyContent: "center",
   },
 });

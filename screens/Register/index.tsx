@@ -6,6 +6,7 @@ import { Picker } from "@react-native-picker/picker";
 import * as Application from "expo-application";
 import axios from "axios";
 import ApiUrl from "../../constants/ApiUrl";
+import Loading from "../../components/Loading";
 export default function ({ navigation }) {
   const [loading, setLoading] = React.useState(false);
   const [company, setcompany] = React.useState("");
@@ -21,24 +22,27 @@ export default function ({ navigation }) {
       try {
         comps = await axios.get(ApiUrl + "/companies");
       } catch (error) {
-        console.log(error)
+        console.log(error);
         setLoading(false);
-         setcompanies([]);
-         return;
+        setcompanies([]);
+        return;
       }
       setLoading(false);
-      console.log(comps.data);
-       setcompanies(comps.data);
-       return;
+      setcompanies(comps.data);
+      return;
     };
     getCompanies();
   }, []);
-  const check =()=>{
-   return name&&company&&passwords.pass&&passwords.secure&&email
-  }
+  const check = () => {
+    return name && company && passwords.pass && passwords.secure && email;
+  };
   const registerUser = async () => {
     if (!check()) {
-      alert("Hay campos sin completar.")
+      alert("Hay campos sin completar.");
+      return;
+    }
+    if (passwords.pass !== passwords.secure) {
+      alert("Las contraseñas no coinciden.");
       return;
     }
     let user;
@@ -53,17 +57,19 @@ export default function ({ navigation }) {
       });
     } catch (error) {
       setLoading(false);
+      alert("Error de conexión");
       return false;
     }
     setLoading(false);
-    return user;
+    if (user.data.error) {
+      alert(user.data.error);
+      return;
+    }
+    navigation.navigate("Login");
   };
-  console.log(company)
+
   return loading ? (
-    <View style={[styles.container]}>
-      <Text style={styles.title}>Registro</Text>
-      <ActivityIndicator size="large" color="black"></ActivityIndicator>
-    </View>
+    <Loading title="Registro" />
   ) : (
     <View style={styles.container}>
       <Text style={styles.title}>Registro</Text>
@@ -107,7 +113,11 @@ export default function ({ navigation }) {
         >
           {companies &&
             companies.map((c) => (
-              <Picker.Item label={c.nombre} value={c.id} key={c.id}></Picker.Item>
+              <Picker.Item
+                label={c.nombre}
+                value={c.id}
+                key={c.id}
+              ></Picker.Item>
             ))}
         </Picker>
       </View>
@@ -154,7 +164,10 @@ export default function ({ navigation }) {
         <Text></Text>
       )}
       <View style={styles.button}>
-        <Button onPress={async()=>await registerUser()} title="ENVIAR"></Button>
+        <Button
+          onPress={async () => await registerUser()}
+          title="ENVIAR"
+        ></Button>
       </View>
       <View style={styles.loginbutton}>
         <Button
@@ -175,7 +188,7 @@ const styles = StyleSheet.create({
   horizontal: {
     flexDirection: "row",
     justifyContent: "space-around",
-    padding: 10
+    padding: 10,
   },
   title: {
     fontSize: actualDimensions.height * 0.035,

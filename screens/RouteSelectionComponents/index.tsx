@@ -1,12 +1,14 @@
 import * as React from "react";
 import { Button, StyleSheet } from "react-native";
+import { useSelector } from "react-redux";
 import { Text, View } from "../../components/Themed";
 import actualDimensions from "../../dimensions";
+import { RootState } from "../../store/reducers";
 import ClientsPerRoute from "./ClientsPerRoute";
 import DeliveryRoutes from "./DeliveryRoutes";
 export default function ({navigation}) {
+  const user = useSelector((state: RootState) => state.user.data);
   const [routeSelected, setRouteSelected] = React.useState(0);
-  
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Selección de ruta</Text>
@@ -15,13 +17,13 @@ export default function ({navigation}) {
         lightColor="#eee"
         darkColor="rgba(255,255,255,0.1)"
       />
-      <DeliveryRoutes routeSelected={routeSelected} setRouteSelected={setRouteSelected} />
+      <DeliveryRoutes routeSelected={routeSelected} setRouteSelected={setRouteSelected} user={user}/>
       {routeSelected!==0?<View
         style={styles.separator}
         lightColor="#eee"
         darkColor="rgba(255,255,255,0.1)"
       />:<Text></Text>}
-      {routeSelected!==0?<View style={styles.heightContainer}><ClientsPerRoute routeSelected={routeSelected}/></View>:<Text></Text>}
+      {routeSelected!==0?<View style={styles.heightContainer}><ClientsPerRoute user={user} routeSelected={routeSelected}/></View>:<Text></Text>}
       {routeSelected!==0?<View
         style={styles.separator}
         lightColor="#eee"

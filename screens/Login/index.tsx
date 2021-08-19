@@ -6,40 +6,58 @@ import { Picker } from "@react-native-picker/picker";
 import * as Application from "expo-application";
 import axios from "axios";
 import ApiUrl from "../../constants/ApiUrl";
+import { setToken, getToken } from "../../token";
+import JWT from "expo-jwt";
+import { addUser } from "../../store/actions/user";
+import Loading from "../../components/Loading";
+import { useDispatch } from "react-redux";
+
 export default function ({ navigation }) {
+  const dispatch = useDispatch();
   const [loading, setLoading] = React.useState(false);
   const [email, setemail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const deviceId = Application.androidId;
- 
+
   const check = () => {
-    return password&& email;
+    return password && email;
   };
   const loginUser = async () => {
     if (!check()) {
       alert("Hay campos sin completar.");
       return;
     }
-    let user;
+    let res;
     setLoading(true);
     try {
-      user = await axios.post(ApiUrl + "/login", {
+      res = await axios.post(ApiUrl + "/login", {
         deviceId,
         email,
         password,
       });
     } catch (error) {
       setLoading(false);
+      console.log(error);
+      alert("Error del servidor");
       return false;
     }
+    if (res.data.error) {
+      alert(res.data.error);
+      setLoading(false);
+      return;
+    }
+    if (res.data.auth_token) await setToken(res.data.auth_token);
+    const user = JWT.decode(res.data.auth_token, "shhhhh").dataValues;
     setLoading(false);
-    return user;
+
+    dispatch(addUser(user));
+    return navigation.navigate(
+      !user.habilitado ? "Root" : "PendingConfirmation"
+    );
   };
+
   return loading ? (
-    <View style={[styles.container]}>
-      <Text style={styles.title}>Ingresar</Text>
-      <ActivityIndicator size="large" color="black"></ActivityIndicator>
-    </View>
+    <Loading title="Ingresar" />
   ) : (
     <View style={styles.container}>
       <Text style={styles.title}>Ingresar</Text>
@@ -65,14 +83,10 @@ export default function ({ navigation }) {
       />
       <Text>Contraseña</Text>
       <TextInput
-        style={
-          password.pass !== password.secure || !password.pass
-            ? styles.inputIncorrect
-            : styles.input
-        }
+        style={!password ? styles.inputIncorrect : styles.input}
         secureTextEntry={true}
-        value={password.pass}
-        onChangeText={(val) => setPassword({ ...password, pass: val })}
+        value={password}
+        onChangeText={(val) => setPassword(val)}
       ></TextInput>
 
       <View
@@ -80,16 +94,13 @@ export default function ({ navigation }) {
         lightColor="#eee"
         darkColor="rgba(255,255,255,0.1)"
       />
-     
+
       <View style={styles.button}>
-        <Button
-          onPress={async () => await loginUser()}
-          title="ENVIAR"
-        ></Button>
+        <Button onPress={async () => await loginUser()} title="ENVIAR"></Button>
       </View>
       <View style={styles.loginbutton}>
         <Button
-          onPress={() => navigation.navigate("register")}
+          onPress={() => navigation.navigate("Register")}
           title="REGISTRARSE"
         ></Button>
       </View>

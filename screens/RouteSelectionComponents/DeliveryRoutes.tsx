@@ -1,60 +1,73 @@
+import axios from "axios";
 import * as React from "react";
 import { StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { useSelector } from "react-redux";
+import Loading from "../../components/Loading";
 import { Text, View } from "../../components/Themed";
+import ApiUrl from "../../constants/ApiUrl";
 import actualDimensions from "../../dimensions";
-
-const data = {
-  routes: [
-    { id: 1, name: "Necochea" },
-    { id: 5, name: "Balcarse" },
-    { id: 2, name: "Mar del Plata" },
-    { id: 3, name: "Azul" },
-    { id: 4, name: "Necochea - Martes - Guille" },
-    { id: 6, name: "Mar del Pla2ta - Martes - Guille" },
-    { id: 7, name: "Mar del Platsda - Martes - Guille" },
-    { id: 8, name: "Mar del Platsda - Martes - Guille" },
-    { id: 9, name: "Mar del Platsda - Martes - Guille" },
-    { id: 10, name: "Mar del Platsda - Martes - Guille" },
-    { id: 11, name: "Mar del Platsda - Martes - Guille" },
-    { id: 12, name: "Mar del Platsda - Martes - Guille" },
-    { id: 13, name: "Mar del Platsda - Martes - Guille" },
-  ],
-};
+import { RootState } from "../../store/reducers";
 
 export default function ({
   routeSelected,
   setRouteSelected,
+  user
 }: {
   routeSelected: number;
   setRouteSelected: any;
+  user:any
 }) {
-  return (
+  
+  const [loading, setLoading] = React.useState(false);
+  const [routes, setRoutes] = React.useState([]);
+  async function getRoutes() {
+    setLoading(true);
+
+    const res = await axios.get(
+      ApiUrl + "/company/routes/" + user.distribuidoraId
+    );
+    setRoutes(res.data);
+    setLoading(false);
+
+  }
+  React.useEffect(() => {
+    if (user) getRoutes();
+  },[user]);
+  console.log(routes)
+  return loading ? (
+    <View style={styles.heightContainer}>
+      <Loading title="Buscando rutas..." />
+    </View>
+  ) : !routes.length?<Text>No hay rutas disponibles.</Text>:(
     <View style={styles.heightContainer}>
       <ScrollView contentContainerStyle={styles.container}>
-        {data.routes.map((route) => (
-          <TouchableOpacity onPress={() => setRouteSelected(route.id)} key={route.id}>
+        {routes.map((route) => (
+          <TouchableOpacity
+            onPress={() => setRouteSelected(route.codigo_ruta)}
+            key={route.codigo_ruta}
+          >
             <View
               style={
-                route.id === routeSelected ? styles.selectedBox : styles.boxes
+                route.codigo_ruta === routeSelected ? styles.selectedBox : styles.boxes
               }
             >
               <Text
                 style={
-                  route.id === routeSelected
+                  route.codigo_ruta === routeSelected
                     ? styles.selectedBoxText
                     : styles.boxesText
                 }
               >
-                {route.id}
+                {route.codigo_ruta}
               </Text>
               <Text
                 style={
-                  route.id === routeSelected
+                  route.codigo_ruta === routeSelected
                     ? styles.selectedBoxText
                     : styles.boxesText
                 }
               >
-                {route.name}
+                {route.nombre}
               </Text>
             </View>
           </TouchableOpacity>
