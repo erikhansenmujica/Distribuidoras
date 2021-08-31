@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, StyleSheet, TextInput, ActivityIndicator } from "react-native";
+import {  StyleSheet, ActivityIndicator } from "react-native";
 import { Text, View } from "./Themed";
 import actualDimensions from "../dimensions";
 

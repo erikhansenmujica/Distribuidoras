@@ -15,23 +15,23 @@ export default function ({ routeSelected, user }: { routeSelected: number; user:
     setLoading(true)
     const res=await axios.post(ApiUrl+"/route/clients/"+routeSelected,user )
     setLoading(false)
-    setClients(res.data)
+    if(res.data.error)alert(res.data.error)
+    else setClients(res.data)
   }
   React.useEffect(()=>{
     getClients()
   },[routeSelected])
-
     return loading?<Loading title=""/>:!clients.length?<Text>No hay clientes en esta ruta.</Text>:(
     <View >
       <View style={styles.boxes}>
-            <Text style={styles.pColumn}>Pr...</Text>
+            <Text style={styles.pColumn}>Posicion en ruta</Text>
             <Text style={styles.nColumn}>Nombre</Text>
             <Text style={styles.dColumn}>Dirección</Text>
           </View>
       <ScrollView contentContainerStyle={styles.container}>
         {clients.map((c) => (
           <View style={styles.boxes} key={c.codigo}>
-            <Text style={styles.productColumn}>{c.codigo}</Text>
+            <Text style={styles.positionColumn}>{c.lugar_en_ruta}</Text>
             <Text style={styles.nameColumn}>{c.nombre}</Text>
             <Text style={styles.directionColumn}>{c.direccion}</Text>
           </View>
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   container: {
     borderWidth: actualDimensions.width * 0.002,
   },
-  productColumn: {
+  positionColumn: {
     fontSize: actualDimensions.height * 0.023,
     flex:1,
     borderBottomWidth: actualDimensions.width * 0.002,

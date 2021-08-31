@@ -1,23 +1,20 @@
 import axios from "axios";
 import * as React from "react";
 import { StyleSheet, ScrollView, TouchableOpacity } from "react-native";
-import { useSelector } from "react-redux";
 import Loading from "../../components/Loading";
 import { Text, View } from "../../components/Themed";
 import ApiUrl from "../../constants/ApiUrl";
 import actualDimensions from "../../dimensions";
-import { RootState } from "../../store/reducers";
 
 export default function ({
   routeSelected,
   setRouteSelected,
-  user
+  user,
 }: {
   routeSelected: number;
   setRouteSelected: any;
-  user:any
+  user: any;
 }) {
-  
   const [loading, setLoading] = React.useState(false);
   const [routes, setRoutes] = React.useState([]);
   async function getRoutes() {
@@ -26,19 +23,20 @@ export default function ({
     const res = await axios.get(
       ApiUrl + "/company/routes/" + user.distribuidoraId
     );
-    setRoutes(res.data);
+    if (res.data.error) alert(res.data.error);
+    else setRoutes(res.data);
     setLoading(false);
-
   }
   React.useEffect(() => {
     if (user) getRoutes();
-  },[user]);
-  console.log(routes)
+  }, [user]);
   return loading ? (
     <View style={styles.heightContainer}>
       <Loading title="Buscando rutas..." />
     </View>
-  ) : !routes.length?<Text>No hay rutas disponibles.</Text>:(
+  ) : !routes.length ? (
+    <Text>No hay rutas disponibles.</Text>
+  ) : (
     <View style={styles.heightContainer}>
       <ScrollView contentContainerStyle={styles.container}>
         {routes.map((route) => (
@@ -48,7 +46,9 @@ export default function ({
           >
             <View
               style={
-                route.codigo_ruta === routeSelected ? styles.selectedBox : styles.boxes
+                route.codigo_ruta === routeSelected
+                  ? styles.selectedBox
+                  : styles.boxes
               }
             >
               <Text

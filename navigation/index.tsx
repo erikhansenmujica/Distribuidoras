@@ -8,11 +8,13 @@ import {
   NavigationContainer,
 } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import axios from "axios";
 import JWT from "expo-jwt";
 import * as React from "react";
-import { ColorSchemeName } from "react-native";
+import { ColorSchemeName, Platform } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import Loading from "../components/Loading";
+import ApiUrl from "../constants/ApiUrl";
 import Login from "../screens/Login";
 import NotFoundScreen from "../screens/NotFoundScreen";
 import Register from "../screens/Register";
@@ -21,6 +23,7 @@ import SelectedRouteOptions from "../screens/SelectedRouteOptions";
 import { addUser } from "../store/actions/user";
 import { RootState } from "../store/reducers";
 import { getToken, removeToken } from "../token";
+import * as Application from "expo-application";
 import { RootStackParamList } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
 
@@ -47,20 +50,37 @@ function RootNavigator() {
   const user = useSelector((state: RootState) => state.user.data);
   const dispatch = useDispatch();
   const [loading, setLoading] = React.useState(true);
+  const deviceId = Application.androidId;
+
   async function getUserSavedToken() {
     const token = await getToken();
-    console.log(token, "token")
     if (token) {
       const u = JWT.decode(token, "shhhhh").dataValues;
-      if (u) dispatch(addUser(u));
+      if (u) {
+        let res;
+        try {
+          res = await axios.get(ApiUrl + "/user/device/" + deviceId);
+        } catch (error) {
+          alert(error);
+        }
+        if (res.data.error) {
+          alert(res.data.error);
+          dispatch(addUser(null));
+          await removeToken();
+          setLoading(false);
+          return;
+        }
+        dispatch(addUser({ ...u, device: res.data }));
+      }
     }
     setLoading(false);
   }
   React.useEffect(() => {
     getUserSavedToken();
+
+
   }, []);
-  console.log(user, "@u");
-  //removeToken()
+
   return loading ? (
     <Loading title="" />
   ) : (

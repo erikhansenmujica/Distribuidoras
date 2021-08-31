@@ -50,7 +50,7 @@ export default function ({ navigation }) {
     const user = JWT.decode(res.data.auth_token, "shhhhh").dataValues;
     setLoading(false);
 
-    dispatch(addUser(user));
+    dispatch(addUser({...user, device: res.data.device}));
     return navigation.navigate(
       !user.habilitado ? "Root" : "PendingConfirmation"
     );
