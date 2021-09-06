@@ -8,7 +8,10 @@ export type RootStackParamList = {
   NotFound: undefined;
   selectedRouteOptions: undefined;
   Register: undefined;
-  Login:undefined
+  Login:undefined;
+  NewClient:undefined;
+  OrderList:undefined
+
 };
 
 export type BottomTabParamList = {

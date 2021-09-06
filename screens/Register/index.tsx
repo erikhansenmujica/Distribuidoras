@@ -7,6 +7,7 @@ import * as Application from "expo-application";
 import axios from "axios";
 import ApiUrl from "../../constants/ApiUrl";
 import Loading from "../../components/Loading";
+import {registerUserAction}from"../../store/actions/user"
 export default function ({ navigation }) {
   const [loading, setLoading] = React.useState(false);
   const [company, setcompany] = React.useState("");
@@ -45,27 +46,7 @@ export default function ({ navigation }) {
       alert("Las contraseñas no coinciden.");
       return;
     }
-    let user;
-    setLoading(true);
-    try {
-      user = await axios.post(ApiUrl + "/register", {
-        deviceId,
-        company,
-        name,
-        email,
-        password: passwords.pass,
-      });
-    } catch (error) {
-      setLoading(false);
-      alert("Error de conexión");
-      return false;
-    }
-    setLoading(false);
-    if (user.data.error) {
-      alert(user.data.error);
-      return;
-    }
-    navigation.navigate("Login");
+    await registerUserAction({deviceId,company, name, email, password: passwords.pass}, navigation, setLoading)
   };
 
   return loading ? (

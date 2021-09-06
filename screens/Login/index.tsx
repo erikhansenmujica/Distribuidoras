@@ -2,18 +2,13 @@ import * as React from "react";
 import { Button, StyleSheet, TextInput, ActivityIndicator } from "react-native";
 import { Text, View } from "../../components/Themed";
 import actualDimensions from "../../dimensions";
-import { Picker } from "@react-native-picker/picker";
 import * as Application from "expo-application";
-import axios from "axios";
-import ApiUrl from "../../constants/ApiUrl";
-import { setToken, getToken } from "../../token";
-import JWT from "expo-jwt";
-import { addUser } from "../../store/actions/user";
+import { logUserAction } from "../../store/actions/user";
 import Loading from "../../components/Loading";
 import { useDispatch } from "react-redux";
 
 export default function ({ navigation }) {
-  const dispatch = useDispatch();
+  const dispatch=useDispatch()
   const [loading, setLoading] = React.useState(false);
   const [email, setemail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -27,33 +22,7 @@ export default function ({ navigation }) {
       alert("Hay campos sin completar.");
       return;
     }
-    let res;
-    setLoading(true);
-    try {
-      res = await axios.post(ApiUrl + "/login", {
-        deviceId,
-        email,
-        password,
-      });
-    } catch (error) {
-      setLoading(false);
-      console.log(error);
-      alert("Error del servidor");
-      return false;
-    }
-    if (res.data.error) {
-      alert(res.data.error);
-      setLoading(false);
-      return;
-    }
-    if (res.data.auth_token) await setToken(res.data.auth_token);
-    const user = JWT.decode(res.data.auth_token, "shhhhh").dataValues;
-    setLoading(false);
-
-    dispatch(addUser({...user, device: res.data.device}));
-    return navigation.navigate(
-      !user.habilitado ? "Root" : "PendingConfirmation"
-    );
+    dispatch(await logUserAction({ deviceId, email, password }, navigation, setLoading));
   };
 
   return loading ? (

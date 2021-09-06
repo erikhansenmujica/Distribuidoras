@@ -31,10 +31,10 @@ export default function ({ route, navigation }) {
         <TouchableOpacity style={styles.button} onPress={() => ""}>
           <Text style={styles.text}> Cambio de ruta</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => ""}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("NewClient")}>
           <Text style={styles.text}> Nueva cuenta</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => ""}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("OrderList")}>
           <Text style={styles.text}> Resumen de pedidos</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => ""}>

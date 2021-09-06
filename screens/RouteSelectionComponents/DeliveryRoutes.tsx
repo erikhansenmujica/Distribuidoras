@@ -1,10 +1,13 @@
 import axios from "axios";
 import * as React from "react";
 import { StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 import Loading from "../../components/Loading";
 import { Text, View } from "../../components/Themed";
 import ApiUrl from "../../constants/ApiUrl";
 import actualDimensions from "../../dimensions";
+import { fetchRoutes } from "../../store/actions/routes";
+import { RootState } from "../../store/reducers";
 
 export default function ({
   routeSelected,
@@ -15,20 +18,12 @@ export default function ({
   setRouteSelected: any;
   user: any;
 }) {
+  const dispatch=useDispatch()
   const [loading, setLoading] = React.useState(false);
-  const [routes, setRoutes] = React.useState([]);
-  async function getRoutes() {
-    setLoading(true);
-
-    const res = await axios.get(
-      ApiUrl + "/company/routes/" + user.distribuidoraId
-    );
-    if (res.data.error) alert(res.data.error);
-    else setRoutes(res.data);
-    setLoading(false);
-  }
+  const routes = useSelector((state:RootState)=>state.routes.all)
+  
   React.useEffect(() => {
-    if (user) getRoutes();
+    if (user) dispatch(fetchRoutes(user.distribuidoraId, setLoading));
   }, [user]);
   return loading ? (
     <View style={styles.heightContainer}>

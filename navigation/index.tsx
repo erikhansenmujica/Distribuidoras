@@ -20,12 +20,13 @@ import NotFoundScreen from "../screens/NotFoundScreen";
 import Register from "../screens/Register";
 import RouteSelection from "../screens/RouteSelectionComponents";
 import SelectedRouteOptions from "../screens/SelectedRouteOptions";
-import { addUser } from "../store/actions/user";
+import { getUserSavedToken } from "../store/actions/user";
 import { RootState } from "../store/reducers";
-import { getToken, removeToken } from "../token";
 import * as Application from "expo-application";
 import { RootStackParamList } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
+import NewClient from "../screens/NewClient";
+import OrderList from "../screens/OrderList";
 
 export default function Navigation({
   colorScheme,
@@ -52,33 +53,8 @@ function RootNavigator() {
   const [loading, setLoading] = React.useState(true);
   const deviceId = Application.androidId;
 
-  async function getUserSavedToken() {
-    const token = await getToken();
-    if (token) {
-      const u = JWT.decode(token, "shhhhh").dataValues;
-      if (u) {
-        let res;
-        try {
-          res = await axios.get(ApiUrl + "/user/device/" + deviceId);
-        } catch (error) {
-          alert(error);
-        }
-        if (res.data.error) {
-          alert(res.data.error);
-          dispatch(addUser(null));
-          await removeToken();
-          setLoading(false);
-          return;
-        }
-        dispatch(addUser({ ...u, device: res.data }));
-      }
-    }
-    setLoading(false);
-  }
   React.useEffect(() => {
-    getUserSavedToken();
-
-
+    dispatch(getUserSavedToken(deviceId, setLoading))
   }, []);
 
   return loading ? (
@@ -91,7 +67,9 @@ function RootNavigator() {
       <Stack.Screen name="Root" component={RouteSelection} />
       <Stack.Screen name="Register" component={Register} />
       <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="OrderList" component={OrderList} />
 
+      <Stack.Screen name="NewClient" component={NewClient} />
       <Stack.Screen
         name="selectedRouteOptions"
         component={SelectedRouteOptions}
