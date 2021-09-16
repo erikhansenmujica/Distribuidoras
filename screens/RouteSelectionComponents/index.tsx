@@ -127,7 +127,7 @@ export default function ({ navigation }) {
       )}
       {routeSelected !== 0 ? (
         <View style={styles.heightContainer}>
-          <ClientsPerRoute user={user} routeSelected={routeSelected} />
+          <ClientsPerRoute user={user} routeSelected={routeSelected} selectedUser={null} setSelectedUser={null}/>
         </View>
       ) : (
         <Text></Text>

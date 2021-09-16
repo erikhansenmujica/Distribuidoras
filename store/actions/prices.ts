@@ -3,7 +3,7 @@ import ApiUrl from "../../constants/ApiUrl"
 
 import { ADD_PRICES } from "../constants";
 
-export const addRoutes = (prices:any) => ({
+export const addPrices = (prices:any) => ({
   type: ADD_PRICES,
   payload: prices,
 });
@@ -21,9 +21,9 @@ export const getPriceList= (company:string , setLoading:any) =>async (dispatch:a
     }
     if(res.data.error){
       setLoading(false)
-      alert(res.error())
+      alert(res.data.error)
       return
     }
-    dispatch(addRoutes(res.data))
+    dispatch(addPrices(res.data))
     setLoading(false)
   }

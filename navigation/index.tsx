@@ -27,6 +27,7 @@ import { RootStackParamList } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
 import NewClient from "../screens/NewClient";
 import OrderList from "../screens/OrderList";
+import TakeOrder from "../screens/TakeOrder";
 
 export default function Navigation({
   colorScheme,
@@ -68,7 +69,7 @@ function RootNavigator() {
       <Stack.Screen name="Register" component={Register} />
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="OrderList" component={OrderList} />
-
+      <Stack.Screen name="TakeOrder" component={TakeOrder} />
       <Stack.Screen name="NewClient" component={NewClient} />
       <Stack.Screen
         name="selectedRouteOptions"

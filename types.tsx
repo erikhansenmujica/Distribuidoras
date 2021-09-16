@@ -11,7 +11,7 @@ export type RootStackParamList = {
   Login:undefined;
   NewClient:undefined;
   OrderList:undefined
-
+  TakeOrder:undefined
 };
 
 export type BottomTabParamList = {

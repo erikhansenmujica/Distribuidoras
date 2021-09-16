@@ -8,7 +8,8 @@ import { RootState } from "../../store/reducers";
 import ClientsPerRoute from "../RouteSelectionComponents/ClientsPerRoute";
 
 export default function ({ route, navigation }) {
-  const user= useSelector((state: RootState)=>state.user.data)
+  const user = useSelector((state: RootState) => state.user.data);
+  const [selectedUser, setSelectedUser] = React.useState(null);
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Ruta {route.params.routeSelected}</Text>
@@ -18,23 +19,48 @@ export default function ({ route, navigation }) {
         darkColor="rgba(255,255,255,0.1)"
       />
       <View style={styles.heightContainer}>
-        <ClientsPerRoute routeSelected={route.params.routeSelected} user={user}/>
+        <ClientsPerRoute
+          selectedUser={selectedUser}
+          setSelectedUser={setSelectedUser}
+          routeSelected={route.params.routeSelected}
+          user={user}
+        />
       </View>
 
       <View style={styles.buttonsContainer}>
         <TouchableOpacity style={styles.button} onPress={() => ""}>
           <Text style={styles.text}> Pedido extra</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => ""}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() =>
+            selectedUser
+              ? navigation.navigate("TakeOrder", {
+                  selectedUser,
+                  route: route.params.routeSelected,
+                })
+              : alert("Seleccione un cliente.")
+          }
+        >
           <Text style={styles.text}> Tomar pedido</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => ""}>
           <Text style={styles.text}> Cambio de ruta</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("NewClient")}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate("NewClient")}
+        >
           <Text style={styles.text}> Nueva cuenta</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("OrderList")}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() =>
+            navigation.navigate("OrderList", {
+              route: route.params.routeSelected,
+            })
+          }
+        >
           <Text style={styles.text}> Resumen de pedidos</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => ""}>

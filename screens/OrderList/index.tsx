@@ -3,9 +3,41 @@ import { Button, StyleSheet, TextInput, ActivityIndicator } from "react-native";
 import { Text, View } from "../../components/Themed";
 import actualDimensions from "../../dimensions";
 import Loading from "../../components/Loading";
+import { useDispatch, useSelector } from "react-redux";
+import { addOrders, getOrders } from "../../store/actions/orders";
+import { RootState } from "../../store/reducers";
 
-export default function ({ navigation }) {
+export default function ({ navigation, route }) {
+  const dispatch = useDispatch()
+  const user = useSelector((state:RootState)=>state.user.data)
+  const orders = useSelector((state:RootState)=>state.orders.all)
   const [loading, setLoading] = React.useState(false);
+  const [info, setInfo]=React.useState({
+    totalPedidos:0,
+    totalProductos:0,
+    importeTotal:0
+  })
+  console.log("a")
+
+  React.useEffect(()=>{
+    !orders.length&&dispatch(getOrders(user.distribuidoraId,route.params.route, setLoading))
+    if(orders){
+      const ordersObj={}
+      let importe=0
+      orders.forEach(order => {
+        if(!ordersObj[order.id])ordersObj[order.id]={total:0}
+        importe+=(parseInt(order.precio)*parseInt(order.cantidad))
+      });
+      setInfo({
+        totalPedidos:Object.keys(ordersObj).length,
+        totalProductos:orders.length,
+        importeTotal:importe
+      })
+    }
+    return ()=> dispatch(addOrders([]))
+  }, [orders])
+  
+
 
   return loading ? (
     <Loading title="Resumen de pedidos" />
@@ -17,19 +49,19 @@ export default function ({ navigation }) {
         lightColor="#eee"
         darkColor="rgba(255,255,255,0.1)"
       />
-      <Text>Total pedidos:</Text>
+      <Text>Total pedidos: {info.totalPedidos}</Text>
       <View
         style={styles.separator}
         lightColor="#eee"
         darkColor="rgba(255,255,255,0.1)"
       />
-      <Text>Total de productos:</Text>
+      <Text>Total de productos: {info.totalProductos}</Text>
       <View
         style={styles.separator}
         lightColor="#eee"
         darkColor="rgba(255,255,255,0.1)"
       />
-      <Text>Importe total:</Text>
+      <Text>Importe total: {info.importeTotal}</Text>
       <View
         style={styles.separator}
         lightColor="#eee"
