@@ -8,13 +8,10 @@ import {
   NavigationContainer,
 } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import axios from "axios";
-import JWT from "expo-jwt";
 import * as React from "react";
-import { ColorSchemeName, Platform } from "react-native";
+import { ColorSchemeName } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import Loading from "../components/Loading";
-import ApiUrl from "../constants/ApiUrl";
 import Login from "../screens/Login";
 import NotFoundScreen from "../screens/NotFoundScreen";
 import Register from "../screens/Register";
@@ -26,8 +23,12 @@ import * as Application from "expo-application";
 import { RootStackParamList } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
 import NewClient from "../screens/NewClient";
-import OrderList from "../screens/OrderList";
+import OrdersList from "../screens/OrdersList";
+import ProductsList from "../screens/ProductsList";
 import TakeOrder from "../screens/TakeOrder";
+import Payment from "../screens/Payment";
+import ClientHistoricalOrders from "../screens/ClientHistoricalOrders";
+import ExtraOrder from "../screens/ExtraOrder";
 
 export default function Navigation({
   colorScheme,
@@ -68,9 +69,14 @@ function RootNavigator() {
       <Stack.Screen name="Root" component={RouteSelection} />
       <Stack.Screen name="Register" component={Register} />
       <Stack.Screen name="Login" component={Login} />
-      <Stack.Screen name="OrderList" component={OrderList} />
+      <Stack.Screen name="OrdersList" component={OrdersList} />
       <Stack.Screen name="TakeOrder" component={TakeOrder} />
+      <Stack.Screen name="Payment" component={Payment} />
       <Stack.Screen name="NewClient" component={NewClient} />
+      <Stack.Screen name="ProductsList" component={ProductsList} />
+      <Stack.Screen name="ClientHistorical" component={ClientHistoricalOrders} />
+      <Stack.Screen name="ExtraOrder" component={ExtraOrder} />
+
       <Stack.Screen
         name="selectedRouteOptions"
         component={SelectedRouteOptions}

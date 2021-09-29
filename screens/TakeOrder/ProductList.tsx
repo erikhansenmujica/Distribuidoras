@@ -142,7 +142,7 @@ export default function ({
           />
         )}
         contentContainerStyle={styles.container}
-        keyExtractor={(item) => item.codigo.toString()}
+        keyExtractor={(item,i) => i.toString()}
       ></VirtualizedList>
       <Modal
         animationType="slide"

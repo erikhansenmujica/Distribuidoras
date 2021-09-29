@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, StyleSheet, TextInput, ActivityIndicator } from "react-native";
+import { Button, StyleSheet } from "react-native";
 import { Text, View } from "../../components/Themed";
 import actualDimensions from "../../dimensions";
 import Loading from "../../components/Loading";
@@ -17,27 +17,28 @@ export default function ({ navigation, route }) {
     totalProductos:0,
     importeTotal:0
   })
-  console.log("a")
-
   React.useEffect(()=>{
-    !orders.length&&dispatch(getOrders(user.distribuidoraId,route.params.route, setLoading))
-    if(orders){
-      const ordersObj={}
-      let importe=0
-      orders.forEach(order => {
-        if(!ordersObj[order.id])ordersObj[order.id]={total:0}
-        importe+=(parseInt(order.precio)*parseInt(order.cantidad))
-      });
-      setInfo({
-        totalPedidos:Object.keys(ordersObj).length,
-        totalProductos:orders.length,
-        importeTotal:importe
-      })
-    }
+    dispatch(getOrders(user.distribuidoraId,route.params.route, setLoading))
     return ()=> dispatch(addOrders([]))
-  }, [orders])
-  
-
+  }, [])
+  if(orders.length&&!info.totalPedidos){
+    const ordersObj={}
+    let importe=0
+    let cantidad=0
+    console.log(orders)
+    orders.forEach(order => {
+      if(!ordersObj[order.id])ordersObj[order.id]={total:0}
+      order.productos&&order.productos.forEach(prod=>{
+        importe+=(parseFloat(prod.precio)*parseFloat(prod.cantidad))
+        cantidad+=prod.cantidad
+      })
+    });
+    setInfo({
+      totalPedidos:Object.keys(ordersObj).length,
+      totalProductos:cantidad,
+      importeTotal:Math.round((importe + Number.EPSILON) * 100) / 100
+    })
+  }
 
   return loading ? (
     <Loading title="Resumen de pedidos" />

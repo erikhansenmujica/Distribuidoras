@@ -10,8 +10,12 @@ export type RootStackParamList = {
   Register: undefined;
   Login:undefined;
   NewClient:undefined;
-  OrderList:undefined
+  OrdersList:undefined
   TakeOrder:undefined
+  ProductsList:undefined
+  Payment:undefined
+  ClientHistorical:undefined
+  ExtraOrder:undefined
 };
 
 export type BottomTabParamList = {

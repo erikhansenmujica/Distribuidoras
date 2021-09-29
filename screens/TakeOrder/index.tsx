@@ -19,10 +19,8 @@ import { RootState } from "../../store/reducers";
 import { setNewOrder } from "../../store/actions/orders";
 import moment from "moment";
 
-
-
 export default function ({ route, navigation }) {
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user.data);
   const [loading, setLoading] = React.useState(false);
   const [selectedProducts, setSelectedProducts] = React.useState([]);
@@ -31,8 +29,8 @@ export default function ({ route, navigation }) {
   const [date, setDate] = React.useState(new Date());
   const [show, setShow] = React.useState(false);
   const [tilde, setTilde] = React.useState(1);
-  
-  const hora_inicio =moment().format("HH:mm")
+
+  const hora_inicio = moment().format("HH:mm");
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
     setShow(Platform.OS === "ios");
@@ -83,20 +81,27 @@ export default function ({ route, navigation }) {
   }
   const client = route.params.selectedUser;
   const closeOrder = async () => {
-    let fecha = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    let hora = moment().format("HH:mm")
+    let fecha = new Date().toISOString().slice(0, 19).replace("T", " ");
+    let hora = moment().format("HH:mm");
     let cliente = client.codigo;
     let usuario = user.id;
     let ruta = route.params.route;
-    let fecha_entrega = date.toISOString().slice(0, 19).replace('T', ' ');
-    const completeOrder= {
-      products:selectedProducts,
-      order:{
-        fecha, cliente,hora,usuario,ruta,tilde, fecha_entrega,hora_inicio,
+    let fecha_entrega = date.toISOString().slice(0, 19).replace("T", " ");
+    const completeOrder = {
+      products: selectedProducts,
+      order: {
+        fecha,
+        cliente,
+        hora,
+        usuario,
+        ruta,
+        tilde,
+        fecha_entrega,
+        hora_inicio,
       },
-      company:user.distribuidoraId
-    }
-    await setNewOrder(completeOrder, setLoading, navigation)
+      company: user.distribuidoraId,
+    };
+    await setNewOrder(completeOrder, setLoading, navigation);
   };
   return loading ? (
     <Loading title={"Pedido de" + client.nombre} />
@@ -105,13 +110,22 @@ export default function ({ route, navigation }) {
       <View style={styles.firstBoxContainer}>
         <Text style={styles.title}>Pedido de {client.nombre}</Text>
         <View style={styles.subtitleContainer}>
-          <TouchableOpacity onPress={() => ""}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("ClientHistorical", { client })}
+          >
             <View style={styles.buttons}>
               <Text style={styles.text}>Pedidos históricos</Text>
             </View>
           </TouchableOpacity>
           <Text style={styles.saldo}>(saldo actual: {client.saldo})</Text>
-          <TouchableOpacity onPress={() => ""}>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate("Payment", {
+                client,
+                route: route.params.route,
+              })
+            }
+          >
             <View style={styles.buttons}>
               <Text style={styles.text}>Ingresar pago</Text>
             </View>

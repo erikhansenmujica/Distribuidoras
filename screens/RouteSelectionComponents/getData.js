@@ -19,6 +19,8 @@ function openDatabase() {
 
 const db = openDatabase();
 
+
+
 export default async function (
   companyId,
   setCubes,
@@ -42,6 +44,12 @@ export default async function (
     tx.executeSql("drop table if exists vista_rutas");
   });
   db.transaction((tx) => {
+    tx.executeSql("drop table if exists tbl_pedidos_moviles_para_facturar");
+  });
+  db.transaction((tx) => {
+    tx.executeSql("drop table if exists tbl_pedidos_moviles_para_facturar_contenido");
+  });
+  db.transaction((tx) => {
     tx.executeSql(
       "create table if not exists vista_clientes (codigo int primary key not null, ruta int, nombre text, direccion text, lista_precio text, inscripcion_iva text, lugar_en_ruta int, saldo int);"
     );
@@ -59,6 +67,16 @@ export default async function (
   db.transaction((tx) => {
     tx.executeSql(
       "create table if not exists vista_rutas (codigo_ruta text not null, nombre text);"
+    );
+  });
+  db.transaction((tx) => {
+    tx.executeSql(
+      "create table if not exists tbl_pedidos_moviles_para_facturar (id text, fecha	text,hora text, cliente int, usuario text, ruta text, tilde int, fecha_entrega text, hora_inicio text, id_reparto text);"
+    );
+  });
+  db.transaction((tx) => {
+    tx.executeSql(
+      "create table if not exists tbl_pedidos_moviles_para_facturar_contenido (id_pedido_movil text,id_contenido_pedido text,producto int,cantidad int,precio text,cliente int,Producto_nombre text,ruta text,id_reparto text);"
     );
   });
   async function doselect(tableName) {
@@ -123,6 +141,22 @@ export default async function (
         started: false,
       },
     },
+    {
+      tbl_pedidos_moviles_para_facturar:{
+        apiRoute:"/company/orders",
+        message: "(pedidos)",
+        finished: false,
+        started: false,
+      }
+    },
+    {
+      tbl_pedidos_moviles_para_facturar_contenido:{
+        apiRoute:"/company/orderscontent",
+        message: "(contenido de pedidos)",
+        finished: false,
+        started: false,
+      }
+    }
   ];
   function checker(key) {
     let message="Sincronizando:"
