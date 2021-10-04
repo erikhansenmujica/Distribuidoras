@@ -1,1 +1,1 @@
-export default "http://192.168.1.3:8000"
+export default "https://distribuidoras.herokuapp.com"
