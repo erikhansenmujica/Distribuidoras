@@ -35,10 +35,10 @@ export default function ({
   ) : (
     <View style={styles.heightContainer}>
       <ScrollView contentContainerStyle={styles.container}>
-        {routes.map((route) => (
+        {routes.map((route,i) => (
           <TouchableOpacity
             onPress={() => setRouteSelected(route.codigo_ruta)}
-            key={route.codigo_ruta}
+            key={i}
           >
             <View
               style={

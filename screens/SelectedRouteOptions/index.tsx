@@ -219,6 +219,7 @@ export default function ({ route, navigation }) {
       >
         <Text style={styles.text}> Cerrar pedidos</Text>
       </TouchableOpacity>
+      
     </View>
   );
 }

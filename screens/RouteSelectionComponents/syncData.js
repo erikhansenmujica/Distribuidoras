@@ -18,111 +18,23 @@ function openDatabase() {
 }
 
 const db = openDatabase();
-
-export default async function (
+export default (
   companyId,
   setCubes,
   setMessage,
   setModalVisible,
   deviceId,
   dispatch,
+
   user
-) {
+) => {
   let cubos = 0;
-  db.transaction((tx) => {
-    tx.executeSql("drop table if exists vista_clientes");
-  });
-  db.transaction((tx) => {
-    tx.executeSql("drop table if exists vista_movimientos_cuenta_corriente");
-  });
-  db.transaction((tx) => {
-    tx.executeSql("drop table if exists vista_productos");
-  });
-  db.transaction((tx) => {
-    tx.executeSql("drop table if exists vista_rutas");
-  });
-  db.transaction((tx) => {
-    tx.executeSql("drop table if exists tbl_pedidos_moviles_para_facturar");
-  });
-  db.transaction((tx) => {
-    tx.executeSql(
-      "drop table if exists tbl_pedidos_moviles_para_facturar_contenido"
-    );
-  });
-  db.transaction((tx) => {
-    tx.executeSql("drop table if exists vista_historico_tbl_pedidos_moviles");
-  });
-  db.transaction((tx) => {
-    tx.executeSql(
-      "drop table if exists vista_historico_tbl_pedidos_moviles_contenido"
-    );
-  });
-  db.transaction((tx) => {
-    tx.executeSql("drop table if exists tbl_clientes_nuevos");
-  });
-  db.transaction((tx) => {
-    tx.executeSql("drop table if exists tbl_cobranza");
-  });
-  db.transaction((tx) => {
-    tx.executeSql(
-      "create table if not exists vista_clientes (codigo int primary key not null, ruta int, nombre text, direccion text, lista_precio text, inscripcion_iva text, lugar_en_ruta int, saldo int);"
-    );
-  });
-  db.transaction((tx) => {
-    tx.executeSql(
-      "create table if not exists vista_movimientos_cuenta_corriente (id_movimiento int primary key not null, codigo text, tipo_comprobante text, numero_comprobante text, fecha_vencimiento text, detalle text, importe int)"
-    );
-  });
-  db.transaction((tx) => {
-    tx.executeSql(
-      "create table if not exists vista_productos (codigo int primary key not null, codigo_barras text, descripcion text, stock int, stock_minimo text, alicuota_iva text, precio_venta int);"
-    );
-  });
-  db.transaction((tx) => {
-    tx.executeSql(
-      "create table if not exists vista_rutas (codigo_ruta text not null, nombre text);"
-    );
-  });
-  db.transaction((tx) => {
-    tx.executeSql(
-      "create table if not exists tbl_pedidos_moviles_para_facturar (id text, fecha	text,hora text, cliente int, usuario text, ruta text, tilde int, fecha_entrega text, hora_inicio text, id_reparto text);"
-    );
-  });
-  db.transaction((tx) => {
-    tx.executeSql(
-      "create table if not exists tbl_pedidos_moviles_para_facturar_contenido (id_pedido_movil text,id_contenido_pedido text,producto int,cantidad int,precio text,cliente int,Producto_nombre text,ruta text,id_reparto text);"
-    );
-  });
-  db.transaction((tx) => {
-    tx.executeSql(
-      "create table if not exists tbl_clientes_nuevos (tipo_cuenta text,codigo int,nombre text,direccion text,localidad text,provincia text,codigo_postal text,telefono text,email text,datos_entrega text,numero_lista text,cuit text,categoria_de_iva text,ing_brutos text,cod_ruta int,pos_ruta int);"
-    );
-  });
-  db.transaction((tx) => {
-    tx.executeSql(
-      "create table if not exists tbl_cobranza (id text,fecha text,hora text,cliente int,usuario text,ruta text,importe text,fecha_cobro_cheque text,detalle text);"
-    );
-  });
-  db.transaction((tx) => {
-    tx.executeSql(
-      "create table if not exists vista_historico_tbl_pedidos_moviles (id text,fecha text,hora text,cliente int,usuario text,ruta text,tilde int,fecha_entrega text,hora_inicio text,id_reparto text);"
-    );
-  });
-  db.transaction((tx) => {
-    tx.executeSql(
-      "create table if not exists vista_historico_tbl_pedidos_moviles_contenido (id_pedido_movil text,id_contenido_pedido text,producto int,cantidad int,precio text,cliente int,Producto_nombre text,ruta text,id_reparto text);"
-    );
-  });
 
   async function doselect(tableName, finished) {
     if (tableName === "vista_movimientos_cuenta_corriente" && finished) {
       db.transaction((tx) =>
         tx.executeSql(
-          tableName === "vista_movimientos_cuenta_corriente"
-            ? "SELECT * FROM " +
-                tableName +
-                " ORDER BY id_movimiento desc LIMIT 1"
-            : "SELECT * FROM " + tableName,
+          "SELECT * FROM " + tableName + " ORDER BY id_movimiento desc LIMIT 1",
           [],
           (_, { rows }) => {
             axios
@@ -145,7 +57,6 @@ export default async function (
   const tablesAr = [
     {
       vista_productos: {
-        apiRoute: "/company/products",
         message: "(productos)",
         finished: false,
         started: false,
@@ -153,7 +64,6 @@ export default async function (
     },
     {
       tbl_clientes_nuevos: {
-        apiRoute: "/company/newclients",
         message: "(clientes nuevos)",
         finished: false,
         started: false,
@@ -161,7 +71,6 @@ export default async function (
     },
     {
       vista_historico_tbl_pedidos_moviles: {
-        apiRoute: "/company/historicorders",
         message: "(pedidos historicos)",
         finished: false,
         started: false,
@@ -169,16 +78,14 @@ export default async function (
     },
     {
       vista_historico_tbl_pedidos_moviles_contenido: {
-        apiRoute: "/company/historicorderscontent",
         message: "(contenido pedidos historicos)",
         finished: false,
         started: false,
       },
     },
-   
+
     {
       vista_clientes: {
-        apiRoute: "/company/clients",
         message: "(clientes)",
         finished: false,
         started: false,
@@ -186,7 +93,6 @@ export default async function (
     },
     {
       vista_rutas: {
-        apiRoute: "/company/routes",
         message: "(rutas)",
         finished: false,
         started: false,
@@ -194,7 +100,6 @@ export default async function (
     },
     {
       vista_movimientos_cuenta_corriente: {
-        apiRoute: "/company/accountmovements",
         message: "(movimientos de cuenta corriente)",
         finished: false,
         started: false,
@@ -228,18 +133,67 @@ export default async function (
   async function startSync(arr) {
     checker();
     arr.forEach(async (e, i) => {
+      let pk = "";
+
       let key = Object.keys(e)[0];
       let res;
-      try {
-        res = await axios.get(ApiUrl + e[key].apiRoute + "/" + companyId);
-      } catch (error) {
-        alert(error);
+      if (key === "tbl_clientes_nuevos") {
+        pk = "codigo";
       }
-      doBigQuery(key, res.data, 0, 9, doselect, cubos, setCubes, checker);
+      if (key === "vista_clientes") {
+        pk = "codigo";
+      }
+      if (key === "vista_historico_tbl_pedidos_moviles") {
+        pk = "id";
+      }
+      if (key === "vista_historico_tbl_pedidos_moviles_contenido") {
+        pk = "id_contenido_pedido";
+      }
+      if (key === "vista_movimientos_cuenta_corriente") {
+        pk = "id_movimiento";
+      }
+      if (key === "vista_productos") {
+        pk = "codigo";
+      }
+      if (key === "vista_rutas") {
+        pk = "codigo_ruta";
+      }
+      db.transaction((tx) =>
+        tx.executeSql(
+          "SELECT * FROM " +
+            key +
+            " ORDER BY cast(" +
+            pk +
+            " as unsigned) desc LIMIT 1",
+          [],
+          async (_, { rows }) => {
+            try {
+              if (rows["_array"][0])
+                res = await axios.get(
+                  ApiUrl +
+                    "/sync/table/" +
+                    key +
+                    "/" +
+                    companyId +
+                    "/" +
+                    rows["_array"][0][pk]
+                );
+              else
+                res = await axios.get(
+                  ApiUrl + "/sync/table/" + key + "/" + companyId + "/" + 0
+                );
+            } catch (error) {
+              console.log(error);
+              alert(error);
+            }
+            doBigQuery(key, res.data, 0, 9, doselect, cubos, setCubes, checker);
+          }
+        )
+      );
     });
   }
   startSync(tablesAr);
-}
+};
 
 function doBigQuery(
   tableName,

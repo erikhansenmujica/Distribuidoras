@@ -15,6 +15,7 @@ import { removeToken } from "../../token";
 import ClientsPerRoute from "./ClientsPerRoute";
 import DeliveryRoutes from "./DeliveryRoutes";
 import getData from "./getData";
+import syncData from "./syncData";
 
 export default function ({ navigation }) {
   const dispatch = useDispatch();
@@ -142,15 +143,26 @@ export default function ({ navigation }) {
         <Text></Text>
       )}
       {routeSelected !== 0 ? (
+        <View style={{marginLeft:actualDimensions.width*0.3}}>
         <Button
           onPress={() =>
             navigation.navigate("selectedRouteOptions", { routeSelected })
           }
           title={"Continuar ruta: " + routeSelected}
         />
+        </View>
       ) : (
         <Text></Text>
       )}
+      <View
+        style={styles.goback}
+      >
+        <Button onPress={() =>{
+          setModalVisible(true)
+          syncData(user.distribuidoraId, setCubes, setMessage, setModalVisible, user.device.deviceId, dispatch, user)
+        }
+        } title="Sincronizar"/>
+      </View>
     </View>
   );
 }
@@ -160,6 +172,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+  },  goback: {
+    position: "absolute",
+    bottom: actualDimensions.height * 0.055,
+    left: actualDimensions.width * 0.1,
   },
   container2: {
     display: "flex",

@@ -311,8 +311,9 @@ export function closeOrders(setLoading, navigation, distribuidora) {
               alert(res.data.error);
               return;
             }
-            console.log("aaaa");
-            tx.executeSql("DELETE FROM " + table);
+            db.transaction((t) => {
+              t.executeSql("DELETE FROM " + table);
+            });
             counter += 1;
             sync(tables[counter], counter);
           } else {
