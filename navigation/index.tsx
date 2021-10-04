@@ -56,14 +56,15 @@ function RootNavigator() {
   const deviceId = Application.androidId;
 
   React.useEffect(() => {
-    dispatch(getUserSavedToken(deviceId, setLoading))
+    dispatch(getUserSavedToken(deviceId, setLoading));
   }, []);
-
   return loading ? (
     <Loading title="" />
   ) : (
     <Stack.Navigator
-      initialRouteName={user ? "Root" : "Login"}
+      initialRouteName={
+        user ? (user.habilitado === 1 ? "Root" : "NotFound") : "Login"
+      }
       screenOptions={{ headerShown: false }}
     >
       <Stack.Screen name="Root" component={RouteSelection} />
@@ -74,7 +75,10 @@ function RootNavigator() {
       <Stack.Screen name="Payment" component={Payment} />
       <Stack.Screen name="NewClient" component={NewClient} />
       <Stack.Screen name="ProductsList" component={ProductsList} />
-      <Stack.Screen name="ClientHistorical" component={ClientHistoricalOrders} />
+      <Stack.Screen
+        name="ClientHistorical"
+        component={ClientHistoricalOrders}
+      />
       <Stack.Screen name="ExtraOrder" component={ExtraOrder} />
 
       <Stack.Screen

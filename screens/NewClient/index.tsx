@@ -83,7 +83,6 @@ export default function ({ navigation }) {
       setLoading
     );
   };
-  console.log(prices)
   return loading ? (
     <Loading title="Alta de cuenta" />
   ) : (

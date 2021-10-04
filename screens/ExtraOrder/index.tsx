@@ -13,6 +13,7 @@ import Loading from "../../components/Loading";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/reducers";
 import Navigation from "../../navigation";
+import { getAllClients } from "../../store/actions/clients";
 const Item = ({ c, selectedUser, setSelectedUser }) => {
   return (
     <TouchableOpacity
@@ -47,20 +48,11 @@ export default function ({
   const [selectedUser, setSelectedUser] = React.useState({});
   const user = useSelector((state: RootState) => state.user.data);
   async function getClients() {
-    let res: any;
-    setLoading(true);
-    if (user)
-      res = await axios.get(
-        ApiUrl + "/company/allclients/" + user.distribuidoraId
-      );
-    setLoading(false);
-    if (res.data.error) alert(res.data.error);
-    else setClients(res.data);
+    if (user) getAllClients(route, setClients, setLoading);
   }
   React.useEffect(() => {
     getClients();
   }, []);
-  console.log(route)
   return loading ? (
     <Loading title="Pedido Extra" />
   ) : !clients.length ? (
@@ -94,11 +86,11 @@ export default function ({
         title="añadir pedido"
         onPress={() => {
           selectedUser
-          ?  navigation.navigate("TakeOrder", {
-            selectedUser,
-            route: route.params.route,
-          })
-          : alert("Seleccione un cliente.")
+            ? navigation.navigate("TakeOrder", {
+                selectedUser,
+                route: route.params.route,
+              })
+            : alert("Seleccione un cliente.");
         }}
       ></Button>
 

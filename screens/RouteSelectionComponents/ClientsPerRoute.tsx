@@ -25,7 +25,7 @@ const Item = ({ c, selectedUser, setSelectedUser }) => {
         }
         key={c.codigo}
       >
-        <Text style={styles.positionColumn}>{c.lugar_en_ruta}</Text>
+        <Text style={styles.positionColumn}>{c.lugar_en_ruta?c.lugar_en_ruta:c.pos_ruta?c.pos_ruta:0}</Text>
         <Text style={styles.nameColumn}>{c.nombre}</Text>
         <Text style={styles.directionColumn}>{c.direccion}</Text>
       </View>
@@ -58,6 +58,7 @@ export default function ({
   // }
   React.useEffect(() => {
     getClientsPerRoute(routeSelected, setClients, setLoading);
+    
   }, [routeSelected]);
   return loading ? (
     <Loading title="" />

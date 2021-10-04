@@ -19,8 +19,6 @@ function openDatabase() {
 
 const db = openDatabase();
 
-
-
 export default async function (
   companyId,
   setCubes,
@@ -47,7 +45,23 @@ export default async function (
     tx.executeSql("drop table if exists tbl_pedidos_moviles_para_facturar");
   });
   db.transaction((tx) => {
-    tx.executeSql("drop table if exists tbl_pedidos_moviles_para_facturar_contenido");
+    tx.executeSql(
+      "drop table if exists tbl_pedidos_moviles_para_facturar_contenido"
+    );
+  });
+  db.transaction((tx) => {
+    tx.executeSql("drop table if exists vista_historico_tbl_pedidos_moviles");
+  });
+  db.transaction((tx) => {
+    tx.executeSql(
+      "drop table if exists vista_historico_tbl_pedidos_moviles_contenido"
+    );
+  });
+  db.transaction((tx) => {
+    tx.executeSql("drop table if exists tbl_clientes_nuevos");
+  });
+  db.transaction((tx) => {
+    tx.executeSql("drop table if exists tbl_cobranza");
   });
   db.transaction((tx) => {
     tx.executeSql(
@@ -79,22 +93,38 @@ export default async function (
       "create table if not exists tbl_pedidos_moviles_para_facturar_contenido (id_pedido_movil text,id_contenido_pedido text,producto int,cantidad int,precio text,cliente int,Producto_nombre text,ruta text,id_reparto text);"
     );
   });
-  async function doselect(tableName) {
-    db.transaction((tx) =>
-      tx.executeSql(
-        tableName === "vista_movimientos_cuenta_corriente"
-          ? "SELECT * FROM " +
-              tableName +
-              " ORDER BY id_movimiento desc LIMIT 1"
-          : "SELECT * FROM " + tableName,
-        [],
-        (_, { rows }) => {
-          if (rows.length) {
-            setCubes(cubos + 2);
-            cubos += 2;
-          }
-          if (tableName === "vista_movimientos_cuenta_corriente") {
-            console.log(rows._array[0]);
+  db.transaction((tx) => {
+    tx.executeSql(
+      "create table if not exists tbl_clientes_nuevos (tipo_cuenta text,codigo int,nombre text,direccion text,localidad text,provincia text,codigo_postal text,telefono text,email text,datos_entrega text,numero_lista text,cuit text,categoria_de_iva text,ing_brutos text,cod_ruta int,pos_ruta int);"
+    );
+  });
+  db.transaction((tx) => {
+    tx.executeSql(
+      "create table if not exists tbl_cobranza (id text,fecha text,hora text,cliente int,usuario text,ruta text,importe text,fecha_cobro_cheque text,detalle text);"
+    );
+  });
+  db.transaction((tx) => {
+    tx.executeSql(
+      "create table if not exists vista_historico_tbl_pedidos_moviles (id text,fecha text,hora text,cliente int,usuario text,ruta text,tilde int,fecha_entrega text,hora_inicio text,id_reparto text);"
+    );
+  });
+  db.transaction((tx) => {
+    tx.executeSql(
+      "create table if not exists vista_historico_tbl_pedidos_moviles_contenido (id_pedido_movil text,id_contenido_pedido text,producto int,cantidad int,precio text,cliente int,Producto_nombre text,ruta text,id_reparto text);"
+    );
+  });
+
+  async function doselect(tableName, finished) {
+    if (tableName === "vista_movimientos_cuenta_corriente" && finished) {
+      db.transaction((tx) =>
+        tx.executeSql(
+          tableName === "vista_movimientos_cuenta_corriente"
+            ? "SELECT * FROM " +
+                tableName +
+                " ORDER BY id_movimiento desc LIMIT 1"
+            : "SELECT * FROM " + tableName,
+          [],
+          (_, { rows }) => {
             axios
               .post(ApiUrl + "/update/device/" + deviceId, {
                 key: "ultimo_movimiento_cta_cte",
@@ -102,11 +132,15 @@ export default async function (
               })
               .then((res) => {
                 dispatch(addUser({ ...user, device: res.data }));
+                setModalVisible(false);
               });
-          } else console.log(rows.length);
-        }
-      )
-    );
+          }
+        )
+      );
+    } else if (!finished) {
+      setCubes(cubos + 1);
+      cubos += 1;
+    }
   }
   const tablesAr = [
     {
@@ -117,6 +151,23 @@ export default async function (
         started: false,
       },
     },
+    {
+      vista_historico_tbl_pedidos_moviles: {
+        apiRoute: "/company/historicorders",
+        message: "(pedidos historicos)",
+        finished: false,
+        started: false,
+      },
+    },
+    {
+      vista_historico_tbl_pedidos_moviles_contenido: {
+        apiRoute: "/company/historicorderscontent",
+        message: "(contenido pedidos historicos)",
+        finished: false,
+        started: false,
+      },
+    },
+   
     {
       vista_clientes: {
         apiRoute: "/company/clients",
@@ -141,48 +192,33 @@ export default async function (
         started: false,
       },
     },
-    {
-      tbl_pedidos_moviles_para_facturar:{
-        apiRoute:"/company/orders",
-        message: "(pedidos)",
-        finished: false,
-        started: false,
-      }
-    },
-    {
-      tbl_pedidos_moviles_para_facturar_contenido:{
-        apiRoute:"/company/orderscontent",
-        message: "(contenido de pedidos)",
-        finished: false,
-        started: false,
-      }
-    }
   ];
-  function checker(key) {
-    let message="Sincronizando:"
-    if(key){
-    tablesAr.forEach((e) => {
-      if(e[key]){
-        e[key].finished=true
-        if (!e[key].finished) message+=(" "+e[key].message)
-      }
-      else if (!e[key]) {
-        if (!e[Object.keys(e)[0]].finished) {
-          message+=(" "+e[Object.keys(e)[0]].message)
+  function checker(key, doselect) {
+    let message = "Sincronizando:";
+    if (key) {
+      tablesAr.forEach((e) => {
+        if (e[key]) {
+          e[key].finished = true;
+          if (!e[key].finished) message += " " + e[key].message;
+        } else if (!e[key]) {
+          if (!e[Object.keys(e)[0]].finished) {
+            message += " " + e[Object.keys(e)[0]].message;
+          }
         }
+      });
+      if (message === "Sincronizando:") {
+        doselect("vista_movimientos_cuenta_corriente", true, setModalVisible);
       }
-    });
-    if(message==="Sincronizando:")setModalVisible(false)
-  }
-  else tablesAr.forEach((e, i) => {
-      if (!e[Object.keys(e)[0]].finished) {
-        message+=(" "+e[Object.keys(e)[0]].message)
-      }
-  });
-  setMessage(message)
+    } else
+      tablesAr.forEach((e, i) => {
+        if (!e[Object.keys(e)[0]].finished) {
+          message += " " + e[Object.keys(e)[0]].message;
+        }
+      });
+    setMessage(message);
   }
   async function startSync(arr) {
-    checker()
+    checker();
     arr.forEach(async (e, i) => {
       let key = Object.keys(e)[0];
       let res;
@@ -191,16 +227,7 @@ export default async function (
       } catch (error) {
         alert(error);
       }
-      doBigQuery(
-        key,
-        res.data,
-        0,
-        9,
-        doselect,
-        cubos,
-        setCubes,
-        checker
-      );
+      doBigQuery(key, res.data, 0, 9, doselect, cubos, setCubes, checker);
     });
   }
   startSync(tablesAr);
@@ -223,8 +250,8 @@ function doBigQuery(
   let i = 0;
   if (!minData[0] || start > data.length) {
     console.log("terminado ", tableName);
-    checker(tableName);
-    doselect(tableName, cubos, setCubes);
+    checker(tableName, doselect, cubos, setCubes);
+    doselect(tableName);
     return;
   }
   for (const key in minData[0]) {

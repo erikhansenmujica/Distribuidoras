@@ -27,9 +27,17 @@ export const fetchRoutes =
     // else dispatch(addRoutes(res.data))
     // setLoading(false);
     db.transaction((tx) =>
-      tx.executeSql("select * from vista_rutas", [], (_, { rows }) => {
-        dispatch(addRoutes(rows["_array"]));
-        setLoading(false)
-      })
+      tx.executeSql(
+        "select * from vista_rutas",
+        [],
+        (_, { rows }) => {
+          dispatch(addRoutes(rows["_array"]));
+          setLoading(false);
+        },
+        (_, err) => {
+          alert(err);
+          return true;
+        }
+      )
     );
   };

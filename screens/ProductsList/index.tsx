@@ -29,20 +29,24 @@ export default function ({ navigation, route }) {
     return () => dispatch(addOrders([]));
   }, []);
   if (!ods.length && orders.length) {
-    const obj = {};
+    let arr = [];
     orders.forEach((o: any) => {
-      if (!obj[o.producto]) obj[o.producto] = JSON.parse(JSON.stringify(o));
-      else if (obj[o.producto]) {
-        obj[o.producto].cantidad += o.cantidad;
-      }
+      if (o.productos)
+        o.productos.forEach((product) => {
+          let items = arr.filter(
+            (i) => i.Producto_nombre !== product.Producto_nombre
+          );
+          if (items.length !== arr.length) {
+            let item = arr.filter(
+              (i) => i.Producto_nombre === product.Producto_nombre
+            )[0];
+            item.cantidad = product.cantidad + item.cantidad;
+            arr = [...items, item];
+          } else {
+            arr = [...items, product];
+          }
+        });
     });
-    const arr = [];
-    for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        const element = obj[key];
-        arr.push(element);
-      }
-    }
     setOds(arr);
   }
   return loading ? (

@@ -67,7 +67,7 @@ export const logUserAction =
     setLoading && setLoading(false);
     return (
       navigation &&
-      navigation.navigate(!token.habilitado ? "Root" : "PendingConfirmation")
+      navigation.navigate(token.habilitado ? "Root" : "NotFound")
     );
   };
 

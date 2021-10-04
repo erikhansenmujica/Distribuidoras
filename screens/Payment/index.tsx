@@ -67,7 +67,6 @@ const Item = ({
   modalVisible,
   setModalVisible,
 }) => {
-  console.log(selectedCheque, c);
   return (
     <TouchableOpacity
       onPress={() => {

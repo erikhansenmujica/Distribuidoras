@@ -49,7 +49,7 @@ export default function ({ navigation }) {
           <View style={styles.progressBar20}>
             <View
               style={{
-                ...(cubes === 8 && styles.cubeRight),
+                ...(cubes === 6 && styles.cubeRight),
                 ...styles.cubeLeft,
                 flex: cubes,
                 backgroundColor: "black",
@@ -59,7 +59,7 @@ export default function ({ navigation }) {
               style={{
                 ...(cubes === 0 && styles.cubeLeft),
                 ...styles.cubeRight,
-                flex: 8 - cubes,
+                flex: 6 - cubes,
               }}
             />
           </View>

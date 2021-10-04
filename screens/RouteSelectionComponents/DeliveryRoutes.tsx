@@ -6,7 +6,7 @@ import Loading from "../../components/Loading";
 import { Text, View } from "../../components/Themed";
 import ApiUrl from "../../constants/ApiUrl";
 import actualDimensions from "../../dimensions";
-import { fetchRoutes } from "../../store/actions/routes";
+import { fetchRoutes,addRoutes } from "../../store/actions/routes";
 import { RootState } from "../../store/reducers";
 
 export default function ({
@@ -24,6 +24,7 @@ export default function ({
   
   React.useEffect(() => {
     if (user) dispatch(fetchRoutes(user.distribuidoraId, setLoading));
+    return ()=> dispatch(addRoutes([]))
   }, [user]);
   return loading ? (
     <View style={styles.heightContainer}>

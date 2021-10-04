@@ -12,7 +12,11 @@ import { useDispatch, useSelector } from "react-redux";
 import Loading from "../../components/Loading";
 import { Text, View } from "../../components/Themed";
 import actualDimensions from "../../dimensions";
-import { getOrders, updateOrder } from "../../store/actions/orders";
+import {
+  closeOrders,
+  getOrders,
+  updateOrder,
+} from "../../store/actions/orders";
 import { fetchRoutes } from "../../store/actions/routes";
 import { RootState } from "../../store/reducers";
 import ClientsPerRoute from "../RouteSelectionComponents/ClientsPerRoute";
@@ -79,6 +83,8 @@ const Mod = ({ modalVisible, setModalVisible, selectedUser, user, route }) => {
                   mode="dropdown"
                   enabled={true}
                 >
+                  <Picker.Item label={""} value={""}></Picker.Item>
+
                   {routes.length &&
                     routes.map((c) => (
                       <Picker.Item
@@ -117,8 +123,10 @@ export default function ({ route, navigation }) {
   const user = useSelector((state: RootState) => state.user.data);
   const [selectedUser, setSelectedUser] = React.useState(null);
   const [modalVisible, setModalVisible] = React.useState(false);
-
-  return (
+  const [loading, setLoading] = React.useState(false);
+  return loading ? (
+    <Loading title="Sincronizando..." />
+  ) : (
     <View style={styles.container}>
       <Text style={styles.title}>Ruta {route.params.routeSelected}</Text>
       <View
@@ -203,7 +211,12 @@ export default function ({ route, navigation }) {
           <Text style={styles.text}> Total productos</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.cerrarPedidos} onPress={() => ""}>
+      <TouchableOpacity
+        style={styles.cerrarPedidos}
+        onPress={() =>
+          closeOrders(setLoading, navigation, user.distribuidoraId)
+        }
+      >
         <Text style={styles.text}> Cerrar pedidos</Text>
       </TouchableOpacity>
     </View>

@@ -104,7 +104,6 @@ export const setNewOrder = async (
               id = id1
             ) => {
               let p = body.products[i];
-              console.log(p, i);
               if (p)
                 tx.executeSql(
                   "SELECT * FROM tbl_pedidos_moviles_para_facturar_contenido ORDER BY id_contenido_pedido desc LIMIT 1",
@@ -198,24 +197,22 @@ export const getOrders =
           route,
         [],
         function (_, { rows }) {
-
           function recursiveProductsFetching(
             pedido = rows["_array"][0],
             count = 0
           ) {
             if (!pedido) {
-              console.log(rows["_array"], "@@@@@@@@@@@");
               dispatch(addOrders(rows["_array"]));
               setLoading(false);
               return;
             }
             tx.executeSql(
               "SELECT * FROM tbl_pedidos_moviles_para_facturar_contenido WHERE id_pedido_movil = " +
-                pedido.id,[],
+                pedido.id,
+              [],
               function (err, resultSet) {
                 pedido.productos = resultSet.rows["_array"];
                 if (count === rows["_array"].length - 1) {
-                  console.log(rows["_array"], "@@@@@@@@@@@");
                   dispatch(addOrders(rows["_array"]));
                   setLoading(false);
                   return;
@@ -234,23 +231,101 @@ export const updateOrder =
   (company: any, body: any, setLoading: any, setModalVisible: any) =>
   async (dispatch: any) => {
     setLoading(true);
-    let res: any;
-    try {
-      res = await axios.post(ApiUrl + "/route/update/order/" + company, body);
-    } catch (error) {
-      setLoading(false);
-      console.log(error);
-      alert("Error de conexión");
-      return;
-    }
-    console.log(res.data);
-    if (res.data.error) {
-      setLoading(false);
-      alert(res.data.error);
-      return;
-    }
-    alert("Ruta actualizada para el pedido del cliente.");
-    setLoading(false);
-    setModalVisible(false);
-    dispatch(addOrders([]));
+    // let res: any;
+    // try {
+    //   res = await axios.post(ApiUrl + "/route/update/order/" + company, body);
+    // } catch (error) {
+    //   setLoading(false);
+    //   console.log(error);
+    //   alert("Error de conexión");
+    //   return;
+    // }
+    // console.log(res.data);
+    // if (res.data.error) {
+    //   setLoading(false);
+    //   alert(res.data.error);
+    //   return;
+    // }
+    db.transaction((tx) =>
+      tx.executeSql(
+        "UPDATE tbl_pedidos_moviles_para_facturar SET ruta = " +
+          body.newRouteId +
+          " WHERE (ruta = " +
+          body.routeId +
+          " AND cliente = " +
+          body.clientId +
+          ")",
+        [],
+        function (error, results) {
+          if (!results.rowsAffected) {
+            alert("No existe un pedido de ese cliente en esta ruta.");
+            return;
+          }
+          alert("Ruta actualizada para el pedido del cliente.");
+          setLoading(false);
+          setModalVisible(false);
+          dispatch(addOrders([]));
+        }
+      )
+    );
   };
+
+export function closeOrders(setLoading, navigation, distribuidora) {
+  const tables = [
+    "tbl_clientes_nuevos",
+    "tbl_cobranza",
+    "tbl_pedidos_moviles_para_facturar",
+    "tbl_pedidos_moviles_para_facturar_contenido",
+  ];
+  setLoading(true);
+  function sync(table = tables[0], counter = 0) {
+    console.log(table);
+    if (counter === tables.length) {
+      setLoading(false);
+      alert("Nuevos pedidos, cobros y clientes enviados al servidor.");
+      navigation.navigate("Root");
+      return;
+    }
+    db.transaction((tx) => {
+      tx.executeSql(
+        "SELECT * FROM " + table,
+        [],
+        async function (_, { rows }) {
+          if (rows["_array"].length) {
+            let res: any;
+            try {
+              res = await axios.post(
+                ApiUrl + "/sync/appdata/" + distribuidora,
+                {
+                  [table]: rows["_array"],
+                }
+              );
+            } catch (error) {
+              setLoading(false);
+              console.log(error);
+              alert("Error de conexión");
+              return;
+            }
+            if (res.data.error) {
+              setLoading(false);
+              alert(res.data.error);
+              return;
+            }
+            console.log("aaaa");
+            tx.executeSql("DELETE FROM " + table);
+            counter += 1;
+            sync(tables[counter], counter);
+          } else {
+            counter += 1;
+            sync(tables[counter], counter);
+          }
+        },
+        function (e, err) {
+          console.log(e, err);
+          return true;
+        }
+      );
+    });
+  }
+  sync();
+}

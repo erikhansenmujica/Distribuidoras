@@ -31,7 +31,6 @@ const Item = ({
           defaultValue={c.quantity ? c.quantity.toString() : "1"}
           placeholder="1"
           onEndEditing={(e) => {
-            console.log(e.nativeEvent.text, "@@@@@vale");
             if (e.nativeEvent.text==="0") {
                 setSelectedProducts(selectedProducts.filter(p=>p.codigo!==c.codigo))
             }

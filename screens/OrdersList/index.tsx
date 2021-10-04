@@ -25,7 +25,6 @@ export default function ({ navigation, route }) {
     const ordersObj={}
     let importe=0
     let cantidad=0
-    console.log(orders)
     orders.forEach(order => {
       if(!ordersObj[order.id])ordersObj[order.id]={total:0}
       order.productos&&order.productos.forEach(prod=>{

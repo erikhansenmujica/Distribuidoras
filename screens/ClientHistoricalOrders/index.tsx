@@ -51,7 +51,7 @@ const Mod = ({ modalVisible, setModalVisible, products, setSelectedOrder }) => {
     </Modal>
   );
 };
-const Item = ({ c, setSelectedOrder,setModalVisible }) => {
+const Item = ({ c, setSelectedOrder, setModalVisible }) => {
   return (
     <TouchableOpacity
       onPress={() => {
@@ -61,7 +61,7 @@ const Item = ({ c, setSelectedOrder,setModalVisible }) => {
     >
       <View style={styles.boxes} key={c.id}>
         <Text style={styles.productColumn}>{c.id}</Text>
-        <Text style={styles.cantidadColumn}>{c.productos.length}</Text>
+        <Text style={styles.cantidadColumn}>{c.productos&&c.productos.length}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -75,16 +75,14 @@ export default function ({ navigation, route }) {
   const [modalVisible, setModalVisible] = React.useState(false);
   React.useEffect(() => {
     async function getOds() {
-      setOrders(
-        await getClientHistorical(
-          { company: user.distribuidoraId, client: route.params.client.codigo },
-          setLoading
-        )
+      getClientHistorical(
+        { company: user.distribuidoraId, client: route.params.client.codigo },
+        setLoading,
+        setOrders
       );
     }
     getOds();
   }, []);
-
   return loading ? (
     <Loading title="Pedidos históricos" />
   ) : (
@@ -101,15 +99,19 @@ export default function ({ navigation, route }) {
         <Text style={styles.pColumn}>Pedido</Text>
         <Text style={styles.cColumn}>Productos</Text>
       </View>
-      <FlatList
+      {orders.length?<FlatList
         data={orders}
         style={{ maxHeight: actualDimensions.height * 0.5 }}
         renderItem={({ item }) => (
-          <Item c={item} setSelectedOrder={setSelectedOrder}setModalVisible={setModalVisible} />
+          <Item
+            c={item}
+            setSelectedOrder={setSelectedOrder}
+            setModalVisible={setModalVisible}
+          />
         )}
         contentContainerStyle={styles.flatContainer}
         keyExtractor={(item, i) => JSON.stringify(i)}
-      ></FlatList>
+      ></FlatList>:<View></View>}
       <Mod
         setSelectedOrder={setSelectedOrder}
         products={selectedOrder.productos}
