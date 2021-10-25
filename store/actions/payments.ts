@@ -22,7 +22,9 @@ export const setNewPayment = async (
         company: any;
       }
     | any[],
-  setLoading: any
+  setLoading: any,
+  setCheques:any,
+  setEfectivo:any,
 ) => {
   setLoading(true);
   // let res: any;
@@ -91,6 +93,7 @@ export const setNewPayment = async (
                 if (counter === payment["length"] - 1) {
                   setLoading(false);
                   alert("Pago añadido!");
+                  setCheques([])
                   return;
                 }
 
@@ -154,6 +157,7 @@ export const setNewPayment = async (
             function (error, result) {
               setLoading(false);
               alert("Pago añadido!");
+              setEfectivo({importe: "", detalle: ""})
               return;
             }
           );

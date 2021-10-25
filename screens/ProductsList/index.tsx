@@ -10,7 +10,7 @@ import { RootState } from "../../store/reducers";
 const Item = ({ c }) => {
   return (
     <TouchableOpacity onPress={() => {}}>
-      <View style={styles.boxes} key={c.id_contenido_pedido}>
+      <View style={styles.boxes}>
         <Text style={styles.productColumn}>{c.Producto_nombre}</Text>
         <Text style={styles.cantidadColumn}>{c.cantidad}</Text>
       </View>
@@ -68,7 +68,7 @@ export default function ({ navigation, route }) {
         style={{ maxHeight: actualDimensions.height * 0.5 }}
         renderItem={({ item }) => <Item c={item} />}
         contentContainerStyle={styles.flatContainer}
-        keyExtractor={(item) => item.id_contenido_pedido}
+        keyExtractor={(item,i) => i.toString()}
       ></FlatList>
       <View style={styles.goback}>
         <Button

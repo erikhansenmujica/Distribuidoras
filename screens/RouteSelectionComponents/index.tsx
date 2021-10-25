@@ -11,7 +11,7 @@ import { Text, View } from "../../components/Themed";
 import actualDimensions from "../../dimensions";
 import { addUser } from "../../store/actions/user";
 import { RootState } from "../../store/reducers";
-import { removeToken } from "../../token";
+import { removeDevice, removeToken } from "../../token";
 import ClientsPerRoute from "./ClientsPerRoute";
 import DeliveryRoutes from "./DeliveryRoutes";
 import getData from "./getData";
@@ -50,7 +50,7 @@ export default function ({ navigation }) {
           <View style={styles.progressBar20}>
             <View
               style={{
-                ...(cubes === 6 && styles.cubeRight),
+                ...(cubes === 7 && styles.cubeRight),
                 ...styles.cubeLeft,
                 flex: cubes,
                 backgroundColor: "black",
@@ -60,7 +60,7 @@ export default function ({ navigation }) {
               style={{
                 ...(cubes === 0 && styles.cubeLeft),
                 ...styles.cubeRight,
-                flex: 6 - cubes,
+                flex: 7 - cubes,
               }}
             />
           </View>
@@ -98,6 +98,7 @@ export default function ({ navigation }) {
           <Button
             onPress={async () => {
               await removeToken();
+              await removeDevice()
               dispatch(addUser(null));
               navigation.navigate("Login");
             }}

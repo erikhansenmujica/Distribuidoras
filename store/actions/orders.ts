@@ -293,29 +293,86 @@ export function closeOrders(setLoading, navigation, distribuidora) {
         async function (_, { rows }) {
           if (rows["_array"].length) {
             let res: any;
-            try {
-              res = await axios.post(
-                ApiUrl + "/sync/appdata/" + distribuidora,
-                {
-                  [table]: rows["_array"],
+            if (table === "tbl_pedidos_moviles_para_facturar") {
+              const ordersWContent = [];
+              async function recursiveOrders(i = 0) {
+                let element = rows["_array"][i];
+                if (i === rows["_array"].length) {
+                  try {
+                    res = await axios.post(
+                      ApiUrl + "/sync/appdata/" + distribuidora,
+                      {
+                        "tbl_pedidos_moviles_para_facturar": ordersWContent,
+                      }
+                    );
+                  } catch (error) {
+                    setLoading(false);
+                    console.log(error);
+                    alert("Error de conexión");
+                    return;
+                  }
+                  if (res.data.error) {
+                    setLoading(false);
+                    alert(res.data.error);
+                    return;
+                  }
+                  db.transaction((t) => {
+                    t.executeSql(
+                      "DELETE FROM " +
+                        "tbl_pedidos_moviles_para_facturar_contenido"
+                    );
+                  });
+                  db.transaction((t) => {
+                    t.executeSql(
+                      "DELETE FROM " + "tbl_pedidos_moviles_para_facturar"
+                    );
+                  });
+                  counter += 1;
+                  return sync(tables[counter], counter);
                 }
-              );
-            } catch (error) {
-              setLoading(false);
-              console.log(error);
-              alert("Error de conexión");
-              return;
+                db.transaction((tx) => {
+                  tx.executeSql(
+                    "SELECT * FROM tbl_pedidos_moviles_para_facturar_contenido WHERE id_pedido_movil = " +
+                      element.id,
+                    [],
+                    async function (_, r) {
+                      ordersWContent.push({
+                        ...element,
+                        contenido: r.rows["_array"],
+                      });
+                      recursiveOrders(i + 1);
+                    }
+                  );
+                });
+              }
+              recursiveOrders();
+            } else if (
+              table !== "tbl_pedidos_moviles_para_facturar_contenido"
+            ) {
+              try {
+                res = await axios.post(
+                  ApiUrl + "/sync/appdata/" + distribuidora,
+                  {
+                    [table]: rows["_array"],
+                  }
+                );
+              } catch (error) {
+                setLoading(false);
+                console.log(error);
+                alert("Error de conexión");
+                return;
+              }
+              if (res.data.error) {
+                setLoading(false);
+                alert(res.data.error);
+                return;
+              }
+              db.transaction((t) => {
+                t.executeSql("DELETE FROM " + table);
+              });
+              counter += 1;
+              sync(tables[counter], counter);
             }
-            if (res.data.error) {
-              setLoading(false);
-              alert(res.data.error);
-              return;
-            }
-            db.transaction((t) => {
-              t.executeSql("DELETE FROM " + table);
-            });
-            counter += 1;
-            sync(tables[counter], counter);
           } else {
             counter += 1;
             sync(tables[counter], counter);

@@ -27,3 +27,31 @@ export const removeToken = async () => {
     return null;
   }
 };
+
+export const getDevice = async () => {
+  try {
+    const value = await AsyncStorage.getItem("@auth_device");
+    if (value !== null) {
+      return value;
+    }
+  } catch (e) {
+    console.log(e)
+    return null;
+  }
+};
+
+export const setDevice = async (token) => {
+  try {
+    await AsyncStorage.setItem("@auth_device", token);
+  } catch (e) {
+    console.log(e)
+    return null;
+  }
+};
+export const removeDevice = async () => {
+  try {
+    await AsyncStorage.removeItem("@auth_device");
+  } catch (e) {
+    return null;
+  }
+};

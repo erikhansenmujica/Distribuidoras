@@ -8,6 +8,7 @@ import axios from "axios";
 import ApiUrl from "../../constants/ApiUrl";
 import Loading from "../../components/Loading";
 import {registerUserAction}from"../../store/actions/user"
+
 export default function ({ navigation }) {
   const [loading, setLoading] = React.useState(false);
   const [company, setcompany] = React.useState("");

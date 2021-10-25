@@ -2,6 +2,8 @@ import axios from "axios";
 import * as SQLite from "expo-sqlite";
 import ApiUrl from "../../constants/ApiUrl";
 import { addUser } from "../../store/actions/user";
+axios.defaults.rejectUnauthorized=false
+
 function openDatabase() {
   if (Platform.OS === "web") {
     return {

@@ -163,20 +163,69 @@ export default function ({ route, navigation }) {
         <View
           style={{
             ...styles.addedProductsContainer,
-            marginTop: actualDimensions.height * 0.05,
+            marginTop: actualDimensions.height * 0.01,
+            width: actualDimensions.width * 0.8,
+            alignItems: "center",
           }}
         >
           <Text style={styles.title}>Resumen de pedido:</Text>
-          <Text>Total de articulos: {selectedProducts.length}</Text>
-          <Text>Total de unidades: {resume().unidades}</Text>
-          <Text>Neto: {round(resume().neto)}</Text>
-          <Text>IVA: {round(resume().iva)}</Text>
-          <Text>Total: {round(resume().total)}</Text>
-          <Text>
-            Fecha: {date.toString().split(" ").splice(0, 4).join(" ")}
-          </Text>
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text style={{ flex: 1, fontWeight: "bold" }}>
+              Total de articulos:
+              <Text >
+                {selectedProducts.length}
+              </Text>
+            </Text>
+            <Text style={{ flex: 1, fontWeight: "bold" }}>
+              Total de unidades:
+              <Text >{resume().unidades}</Text>
+            </Text>
+          </View>
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text style={{ flex: 1, fontWeight: "bold" }}>
+              Neto:
+              <Text >{round(resume().neto)}</Text>
+            </Text>
+            <Text style={{ flex: 1, fontWeight: "bold" }}>
+              IVA:
+              <Text >{round(resume().iva)}</Text>
+            </Text>
+          </View>
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text style={{ flex: 1, fontWeight: "bold" }}>
+              Total:
+              <Text>
+                {round(resume().total)}
+              </Text>
+            </Text>
+            <Text style={{ flex: 1, fontWeight: "bold" }}>
+              Fecha:
+              <Text >
+                {date.toString().split(" ").splice(0, 4).join(" ")}
+              </Text>
+            </Text>
+          </View>
+
           <View style={styles.section}>
-            <Text style={styles.paragraph}>Entrega resumen de cuenta</Text>
+            <Text style={{...styles.paragraph, fontWeight:"bold"}}>Entrega resumen de cuenta</Text>
             <Checkbox
               style={styles.checkbox}
               value={tilde ? true : false}
@@ -186,7 +235,7 @@ export default function ({ route, navigation }) {
           </View>
         </View>
       )}
-      <View>
+      <View style={{marginTop:-actualDimensions.height*0.04}}>
         <Button onPress={showMode} title="Seleccionar fecha" />
       </View>
       <View
@@ -234,14 +283,15 @@ const styles = StyleSheet.create({
   firstBoxContainer: {
     display: "flex",
     alignItems: "center",
-    marginTop: actualDimensions.height * 0.1,
+    marginTop: actualDimensions.height * 0.02,
   },
   productsContainer: {
-    maxHeight: actualDimensions.height * 0.4,
-    marginTop: -actualDimensions.height * 0.03,
+    maxHeight: actualDimensions.height * 0.5,
+    marginTop: -actualDimensions.height * 0.04,
   },
   addedProductsContainer: {
     maxHeight: actualDimensions.height * 0.3,
+    marginTop: -actualDimensions.height * 0.04,
   },
   horizontal: {
     flexDirection: "row",
@@ -260,12 +310,12 @@ const styles = StyleSheet.create({
     fontSize: actualDimensions.height * 0.021,
   },
   title: {
-    fontSize: actualDimensions.height * 0.025,
+    fontSize: actualDimensions.height * 0.023,
     fontWeight: "bold",
     marginBottom: actualDimensions.height * 0.02,
   },
   saldo: {
-    fontSize: actualDimensions.height * 0.022,
+    fontSize: actualDimensions.height * 0.02,
     fontWeight: "bold",
     marginBottom: actualDimensions.height * 0.02,
     color: "green",
@@ -280,7 +330,7 @@ const styles = StyleSheet.create({
   },
   goback: {
     position: "absolute",
-    top: actualDimensions.height * 0.05,
+    top: actualDimensions.height * 0.03,
     left: actualDimensions.width * 0.02,
   },
   buttons: {

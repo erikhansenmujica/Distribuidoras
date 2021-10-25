@@ -1,1 +1,1 @@
-export default "https://distribuidoras.herokuapp.com"
+export default "http://45.173.16.72:6035"

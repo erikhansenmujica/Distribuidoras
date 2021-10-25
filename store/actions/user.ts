@@ -1,9 +1,10 @@
 import axios from "axios";
 import JWT from "expo-jwt";
 import ApiUrl from "../../constants/ApiUrl";
-import { getToken, removeToken, setToken } from "../../token";
+import { getDevice, getToken, removeToken, setDevice, setToken } from "../../token";
 import { ADD_USER } from "../constants";
-
+import NetInfo from "@react-native-community/netinfo";
+axios.defaults.withCredentials=false
 export const addUser = (user) => ({
   type: ADD_USER,
   payload: user,
@@ -21,7 +22,7 @@ export const registerUserAction = async (
   setLoading: any
 ) => {
   let res: any;
-  setLoading&&setLoading(true)
+  setLoading && setLoading(true);
   try {
     res = await axios.post(ApiUrl + "/register", user);
   } catch (error) {
@@ -35,6 +36,9 @@ export const registerUserAction = async (
     return;
   }
   setLoading && setLoading(false);
+  alert(
+    "Su registro ha sido enviado. A la brevedad verificaremos sus datos para que pueda operar con esta app."
+  );
   navigation && navigation.navigate("Login");
   return;
 };
@@ -62,23 +66,30 @@ export const logUserAction =
       return;
     }
     if (res.data.auth_token) await setToken(res.data.auth_token);
+    if (res.data.device) await setDevice(JSON.stringify(res.data.device));
+
     const token = JWT.decode(res.data.auth_token, "shhhhh").dataValues;
     dispatch(addUser({ ...token, device: res.data.device }));
     setLoading && setLoading(false);
     return (
-      navigation &&
-      navigation.navigate(token.habilitado ? "Root" : "NotFound")
+      navigation && navigation.navigate(token.habilitado ? "Root" : "NotFound")
     );
   };
 
-
-
- export const  getUserSavedToken= (deviceId:string, setLoading:any)=>async (dispatch:any)=> {
+export const getUserSavedToken =
+  (deviceId: string, setLoading: any) => async (dispatch: any) => {
     const token = await getToken();
+    const deviceToken=await getDevice()
     if (token) {
       const u = JWT.decode(token, "shhhhh").dataValues;
+      const d= JSON.parse(deviceToken)
+      console.log(d)
       if (u) {
-        let res:any;
+        const state = await NetInfo.fetch();
+        console.log("Connection type", state.type);
+        console.log("Is connected?", state.isConnected);
+        let res: any;
+        if(!state.isConnected){
         try {
           res = await axios.get(ApiUrl + "/user/device/" + deviceId);
         } catch (error) {
@@ -91,8 +102,10 @@ export const logUserAction =
           setLoading(false);
           return;
         }
-        dispatch(addUser({ ...u, device: res.data }));
+        setDevice(JSON.stringify(res.data))
+      }
+        dispatch(addUser({ ...u, device: res?res.data:d }));
       }
     }
     setLoading(false);
-  }
+  };

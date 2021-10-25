@@ -23,7 +23,23 @@ const Item = ({
     <TouchableOpacity onPress={() => setSelectedProduct(c)}>
       <View style={styles.boxes}>
         <Text style={styles.descriptionColumn}>{c.descripcion}</Text>
-        <Text style={styles.priceColumn}>{c.precio_venta}</Text>
+        <TextInput
+          keyboardType="numeric"
+          style={styles.priceColumn}
+          defaultValue={c.precio_venta.toString()}
+          placeholder={c.precio_venta.toString()}
+          onEndEditing={(e) => {
+            let x = e.nativeEvent.text;
+            let i = selectedProducts.map((p) => p.codigo).indexOf(c.codigo);
+            let prod = selectedProducts[i];
+            prod.precio_venta = x
+              ? x.includes(".")
+                ? x.replace(/\./g, "")
+                : x
+              : "";
+            setSelectedProducts([...selectedProducts]);
+          }}
+        ></TextInput>
         <Text style={styles.idColumn}>{c.codigo}</Text>
         <TextInput
           keyboardType="numeric"
@@ -31,10 +47,11 @@ const Item = ({
           defaultValue={c.quantity ? c.quantity.toString() : "1"}
           placeholder="1"
           onEndEditing={(e) => {
-            if (e.nativeEvent.text==="0") {
-                setSelectedProducts(selectedProducts.filter(p=>p.codigo!==c.codigo))
-            }
-            else  {
+            if (e.nativeEvent.text === "0") {
+              setSelectedProducts(
+                selectedProducts.filter((p) => p.codigo !== c.codigo)
+              );
+            } else {
               let i = selectedProducts.map((p) => p.codigo).indexOf(c.codigo);
               let prod = selectedProducts[i];
               if (prod.quantity)
@@ -96,17 +113,23 @@ export default function ({
           />
         )}
         contentContainerStyle={styles.container}
-        keyExtractor={(item) => item.codigo}
+        keyExtractor={(item,i) => i.toString()}
       ></FlatList>
-      {section===1?
-      <Button
-        title="continuar"
-        onPress={() => {
-          setSection(2);
-        }}
-      />:
-      <Button title="cerrar pedido" onPress={async()=>{await closeOrder()}}/>
-      }
+      {section === 1 ? (
+        <Button
+          title="continuar"
+          onPress={() => {
+            setSection(2);
+          }}
+        />
+      ) : (
+        <Button
+          title="cerrar pedido"
+          onPress={async () => {
+            await closeOrder();
+          }}
+        />
+      )}
     </View>
   );
 }

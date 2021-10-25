@@ -16,7 +16,7 @@ import { getClientHistorical } from "../../store/actions/clients";
 const ProductsItem = ({ c }) => {
   return (
     <TouchableOpacity onPress={() => {}}>
-      <View style={styles.boxes} key={c.id_contenido_pedido}>
+      <View style={styles.boxes} >
         <Text style={styles.productColumn}>{c.Producto_nombre}</Text>
         <Text style={styles.cantidadColumn}>{c.cantidad}</Text>
       </View>
@@ -37,7 +37,7 @@ const Mod = ({ modalVisible, setModalVisible, products, setSelectedOrder }) => {
             style={{ maxHeight: actualDimensions.height * 0.5 }}
             renderItem={({ item }) => <ProductsItem c={item} />}
             contentContainerStyle={styles.flatContainer}
-            keyExtractor={(item) => item.id_contenido_pedido}
+            keyExtractor={(item,i) => i.toString()}
           ></FlatList>
           <Button
             title="CERRAR"

@@ -139,8 +139,20 @@ export default ({ navigation, route }) => {
           return;
         }
         setCheques([...cheques, cheque]);
+        setCheque({
+          numero: "",
+          importe: "",
+          banco: "",
+          fecha_cobro: new Date(),
+        })
       } else {
         setCheques([...cheques, cheque]);
+        setCheque({
+          numero: "",
+          importe: "",
+          banco: "",
+          fecha_cobro: new Date(),
+        })
       }
     } else alert("Hay campos sin completar.");
   };
@@ -160,7 +172,9 @@ export default ({ navigation, route }) => {
           detalle: efectivo.detalle,
           company: user.distribuidoraId,
         },
-        setLoading
+        setLoading,
+        setCheques,
+        setEfectivo
       );
     } else {
       let finalCheques = cheques.map((c) => ({
@@ -174,7 +188,7 @@ export default ({ navigation, route }) => {
         company: user.distribuidoraId,
         fecha_cobro: c.fecha_cobro.toISOString().slice(0, 19).replace("T", " ")
       }));
-      setNewPayment(finalCheques, setLoading);
+      setNewPayment(finalCheques, setLoading, setCheques, setEfectivo);
     }
   };
   return loading ? (

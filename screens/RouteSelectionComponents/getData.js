@@ -2,6 +2,8 @@ import axios from "axios";
 import * as SQLite from "expo-sqlite";
 import ApiUrl from "../../constants/ApiUrl";
 import { addUser } from "../../store/actions/user";
+import { setDevice } from "../../token";
+
 function openDatabase() {
   if (Platform.OS === "web") {
     return {
@@ -130,8 +132,9 @@ export default async function (
                 key: "ultimo_movimiento_cta_cte",
                 value: rows._array[0].id_movimiento,
               })
-              .then((res) => {
+              .then(async (res) => {
                 dispatch(addUser({ ...user, device: res.data }));
+                await setDevice(JSON.stringify(res.data))
                 setModalVisible(false);
               });
           }
@@ -175,7 +178,7 @@ export default async function (
         started: false,
       },
     },
-   
+
     {
       vista_clientes: {
         apiRoute: "/company/clients",
@@ -228,14 +231,45 @@ export default async function (
   async function startSync(arr) {
     checker();
     arr.forEach(async (e, i) => {
-      let key = Object.keys(e)[0];
-      let res;
-      try {
-        res = await axios.get(ApiUrl + e[key].apiRoute + "/" + companyId);
-      } catch (error) {
-        alert(error);
+      async function recursiveFetching(from, quantity) {
+        let key = Object.keys(e)[0];
+        let res;
+        try {
+          res = await axios.get(
+            ApiUrl +
+              e[key].apiRoute +
+              "/" +
+              companyId +
+              "/" +
+              from +
+              "/" +
+              quantity
+          );
+        } catch (error) {
+          alert(error);
+          console.error(error, e.stack);
+
+          return;
+        }
+        if (res.data.error) {
+          alert(res.data.error);
+          return;
+        }
+        doBigQuery(
+          key,
+          res.data,
+          0,
+          9,
+          doselect,
+          cubos,
+          setCubes,
+          checker,
+          recursiveFetching,
+          from,
+          quantity
+        );
       }
-      doBigQuery(key, res.data, 0, 9, doselect, cubos, setCubes, checker);
+      recursiveFetching(0, 100);
     });
   }
   startSync(tablesAr);
@@ -249,7 +283,10 @@ function doBigQuery(
   doselect,
   cubos,
   setCubes,
-  checker
+  checker,
+  recursiveFetching,
+  from,
+  quantity
 ) {
   let parameters = [];
   let bigqery = "";
@@ -257,9 +294,14 @@ function doBigQuery(
   let values = "(";
   let i = 0;
   if (!minData[0] || start > data.length) {
-    console.log("terminado ", tableName);
-    checker(tableName, doselect, cubos, setCubes);
-    doselect(tableName);
+    if (data.length < quantity) {
+      checker(tableName, doselect, cubos, setCubes);
+      doselect(tableName);
+      console.log("terminado", tableName)
+    } else {
+      console.log(from, quantity, tableName);
+      recursiveFetching(from + quantity, quantity);
+    }
     return;
   }
   for (const key in minData[0]) {
@@ -271,7 +313,6 @@ function doBigQuery(
     }
     i++;
   }
-
   db.transaction((tx) => {
     minData.forEach((d, index) => {
       let string = "(";
@@ -312,11 +353,26 @@ function doBigQuery(
             doselect,
             cubos,
             setCubes,
-            checker
+            checker,
+            recursiveFetching,
+            from,
+            quantity
           );
         },
         function (_, error) {
-          console.log(error);
+          doBigQuery(
+            tableName,
+            data,
+            (start = limit),
+            (limit += 9),
+            doselect,
+            cubos,
+            setCubes,
+            checker,
+            recursiveFetching,
+            from,
+            quantity
+          );
         }
       );
     }
