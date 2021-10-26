@@ -83,13 +83,12 @@ export const getUserSavedToken =
     if (token) {
       const u = JWT.decode(token, "shhhhh").dataValues;
       const d= JSON.parse(deviceToken)
-      console.log(d)
       if (u) {
         const state = await NetInfo.fetch();
         console.log("Connection type", state.type);
         console.log("Is connected?", state.isConnected);
         let res: any;
-        if(!state.isConnected){
+        if(state.isConnected){
         try {
           res = await axios.get(ApiUrl + "/user/device/" + deviceId);
         } catch (error) {

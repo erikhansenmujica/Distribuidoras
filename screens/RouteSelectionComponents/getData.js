@@ -298,8 +298,8 @@ function doBigQuery(
       checker(tableName, doselect, cubos, setCubes);
       doselect(tableName);
       console.log("terminado", tableName)
+      console.log(new Date())
     } else {
-      console.log(from, quantity, tableName);
       recursiveFetching(from + quantity, quantity);
     }
     return;
