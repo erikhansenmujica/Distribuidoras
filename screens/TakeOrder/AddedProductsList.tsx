@@ -116,12 +116,14 @@ export default function ({
         keyExtractor={(item,i) => i.toString()}
       ></FlatList>
       {section === 1 ? (
+        <View >
         <Button
           title="continuar"
           onPress={() => {
             setSection(2);
           }}
         />
+        </View>
       ) : (
         <Button
           title="cerrar pedido"

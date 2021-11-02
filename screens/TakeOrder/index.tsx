@@ -283,15 +283,15 @@ const styles = StyleSheet.create({
   firstBoxContainer: {
     display: "flex",
     alignItems: "center",
-    marginTop: actualDimensions.height * 0.02,
+    marginTop: actualDimensions.height * 0.03,
   },
   productsContainer: {
-    maxHeight: actualDimensions.height * 0.5,
-    marginTop: -actualDimensions.height * 0.04,
+    maxHeight: actualDimensions.height * 0.54,
+    marginTop: -actualDimensions.height * 0.02,
   },
   addedProductsContainer: {
     maxHeight: actualDimensions.height * 0.3,
-    marginTop: -actualDimensions.height * 0.04,
+    marginTop: -actualDimensions.height * 0.02,
   },
   horizontal: {
     flexDirection: "row",
