@@ -1,10 +1,16 @@
 import axios from "axios";
 import JWT from "expo-jwt";
 import ApiUrl from "../../constants/ApiUrl";
-import { getDevice, getToken, removeToken, setDevice, setToken } from "../../token";
+import {
+  getDevice,
+  getToken,
+  removeToken,
+  setDevice,
+  setToken,
+} from "../../token";
 import { ADD_USER } from "../constants";
 import NetInfo from "@react-native-community/netinfo";
-axios.defaults.withCredentials=false
+axios.defaults.withCredentials = false;
 export const addUser = (user) => ({
   type: ADD_USER,
   payload: user,
@@ -79,31 +85,31 @@ export const logUserAction =
 export const getUserSavedToken =
   (deviceId: string, setLoading: any) => async (dispatch: any) => {
     const token = await getToken();
-    const deviceToken=await getDevice()
+    const deviceToken = await getDevice();
     if (token) {
       const u = JWT.decode(token, "shhhhh").dataValues;
-      const d= JSON.parse(deviceToken)
+      const d = JSON.parse(deviceToken);
       if (u) {
         const state = await NetInfo.fetch();
         console.log("Connection type", state.type);
         console.log("Is connected?", state.isConnected);
         let res: any;
-        if(state.isConnected){
-        try {
-          res = await axios.get(ApiUrl + "/user/device/" + deviceId);
-        } catch (error) {
-          alert(error);
+        if (state.isConnected) {
+          try {
+            res = await axios.get(ApiUrl + "/user/device/" + deviceId);
+          } catch (error) {
+            alert(error);
+          }
+          if (res.data.error) {
+            alert(res.data.error);
+            dispatch(addUser(null));
+            await removeToken();
+            setLoading(false);
+            return;
+          }
+          setDevice(JSON.stringify(res.data));
         }
-        if (res.data.error) {
-          alert(res.data.error);
-          dispatch(addUser(null));
-          await removeToken();
-          setLoading(false);
-          return;
-        }
-        setDevice(JSON.stringify(res.data))
-      }
-        dispatch(addUser({ ...u, device: res?res.data:d }));
+        dispatch(addUser({ ...u, device: res ? res.data : d }));
       }
     }
     setLoading(false);
