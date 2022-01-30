@@ -18,6 +18,8 @@ const Item = ({
   selectedProduct,
   setSelectedProducts,
   selectedProducts,
+  setHideList,
+  index,
 }) => {
   return (
     <TouchableOpacity onPress={() => setSelectedProduct(c)}>
@@ -28,10 +30,12 @@ const Item = ({
           style={styles.priceColumn}
           defaultValue={c.precio_venta.toString()}
           placeholder={c.precio_venta.toString()}
+          onFocus={() => {
+            setHideList(true);
+          }}
           onEndEditing={(e) => {
             let x = e.nativeEvent.text;
-            let i = selectedProducts.map((p) => p.codigo).indexOf(c.codigo);
-            let prod = selectedProducts[i];
+            let prod = selectedProducts[index];
             prod.precio_venta = x
               ? x.includes(".")
                 ? x.replace(/\./g, "")
@@ -46,14 +50,16 @@ const Item = ({
           style={styles.idColumn}
           defaultValue={c.quantity ? c.quantity.toString() : "1"}
           placeholder="1"
+          onFocus={() => {
+            setHideList(true);
+          }}
           onEndEditing={(e) => {
             if (e.nativeEvent.text === "0") {
               setSelectedProducts(
                 selectedProducts.filter((p) => p.codigo !== c.codigo)
               );
             } else {
-              let i = selectedProducts.map((p) => p.codigo).indexOf(c.codigo);
-              let prod = selectedProducts[i];
+              let prod = selectedProducts[index];
               if (prod.quantity)
                 e.nativeEvent.text
                   ? (prod.quantity = parseInt(e.nativeEvent.text))
@@ -77,6 +83,7 @@ export default function ({
   selectedProducts,
   closeOrder,
   setSection,
+  setHideList,
 }) {
   const [loading, setLoading] = React.useState(false);
   const [selectedProduct, setSelectedProduct] = React.useState({});
@@ -103,9 +110,11 @@ export default function ({
       </View>
       <FlatList
         data={selectedProducts}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <Item
+            index={index}
             c={item}
+            setHideList={setHideList}
             selectedProduct={selectedProduct}
             setSelectedProduct={setSelectedProduct}
             setSelectedProducts={setSelectedProducts}
@@ -113,16 +122,16 @@ export default function ({
           />
         )}
         contentContainerStyle={styles.container}
-        keyExtractor={(item,i) => i.toString()}
+        keyExtractor={(item, i) => i.toString()}
       ></FlatList>
       {section === 1 ? (
-        <View >
-        <Button
-          title="continuar"
-          onPress={() => {
-            setSection(2);
-          }}
-        />
+        <View>
+          <Button
+            title="continuar"
+            onPress={() => {
+              setSection(2);
+            }}
+          />
         </View>
       ) : (
         <Button

@@ -2,7 +2,7 @@
   "expo": {
     "name": "distribuidoras",
     "slug": "kaiocom",
-    "version": "1.0.1",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/images/kaio.png",
     "scheme": "myapp",
@@ -15,14 +15,12 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
     "android": {
-      "versionCode":3,
+      "versionCode": 4,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/kaio.png",
         "backgroundColor": "#ffffff"

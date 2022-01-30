@@ -8,35 +8,36 @@ import { addOrders, getOrders } from "../../store/actions/orders";
 import { RootState } from "../../store/reducers";
 
 export default function ({ navigation, route }) {
-  const dispatch = useDispatch()
-  const user = useSelector((state:RootState)=>state.user.data)
-  const orders = useSelector((state:RootState)=>state.orders.all)
+  const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.user.data);
+  const orders = useSelector((state: RootState) => state.orders.all);
   const [loading, setLoading] = React.useState(false);
-  const [info, setInfo]=React.useState({
-    totalPedidos:0,
-    totalProductos:0,
-    importeTotal:0
-  })
-  React.useEffect(()=>{
-    dispatch(getOrders(user.distribuidoraId,route.params.route, setLoading))
-    return ()=> dispatch(addOrders([]))
-  }, [])
-  if(orders.length&&!info.totalPedidos){
-    const ordersObj={}
-    let importe=0
-    let cantidad=0
-    orders.forEach(order => {
-      if(!ordersObj[order.id])ordersObj[order.id]={total:0}
-      order.productos&&order.productos.forEach(prod=>{
-        importe+=(parseFloat(prod.precio)*parseFloat(prod.cantidad))
-        cantidad+=prod.cantidad
-      })
+  const [info, setInfo] = React.useState({
+    totalPedidos: 0,
+    totalProductos: 0,
+    importeTotal: 0,
+  });
+  React.useEffect(() => {
+    dispatch(getOrders(user.distribuidoraId, route.params.route, setLoading));
+    return () => dispatch(addOrders([]));
+  }, []);
+  if (orders.length && !info.totalPedidos) {
+    const ordersObj = {};
+    let importe = 0;
+    let cantidad = 0;
+    orders.forEach((order) => {
+      if (!ordersObj[order.id]) ordersObj[order.id] = { total: 0 };
+      order.productos &&
+        order.productos.forEach((prod) => {
+          importe += parseFloat(prod.precio) * parseFloat(prod.cantidad);
+          cantidad += prod.cantidad;
+        });
     });
     setInfo({
-      totalPedidos:Object.keys(ordersObj).length,
-      totalProductos:cantidad,
-      importeTotal:Math.round((importe + Number.EPSILON) * 100) / 100
-    })
+      totalPedidos: Object.keys(ordersObj).length,
+      totalProductos: cantidad,
+      importeTotal: Math.round((importe + Number.EPSILON) * 100) / 100,
+    });
   }
 
   return loading ? (

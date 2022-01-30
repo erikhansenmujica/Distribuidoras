@@ -22,16 +22,22 @@ export default function ({ navigation }) {
   const user = useSelector((state: RootState) => state.user.data);
   const [cubes, setCubes] = React.useState(0);
   const [message, setMessage] = React.useState("");
-  const [modalVisible, setModalVisible] = React.useState(
-    false
-  );
+  const [modalVisible, setModalVisible] = React.useState(false);
   const [routeSelected, setRouteSelected] = React.useState(0);
   React.useEffect(() => {
-    if (user&&user.device&&!user.device.ultimo_movimiento_cta_cte) {
-      setModalVisible(true)
-      getData(user.distribuidoraId, setCubes, setMessage, setModalVisible, user.device.deviceId, dispatch, user);
+    if (user && user.device && !user.device.ultimo_movimiento_cta_cte) {
+      setModalVisible(true);
+      getData(
+        user.distribuidoraId,
+        setCubes,
+        setMessage,
+        setModalVisible,
+        user.device.deviceId,
+        dispatch,
+        user
+      );
     }
-  },[user]);
+  }, [user]);
   return (
     <View style={styles.container}>
       <Modal
@@ -71,9 +77,7 @@ export default function ({ navigation }) {
             </Button> */}
           <View style={styles.messageContainer}>
             <Text style={styles.message}>{message}</Text>
-            <ActivityIndicator
-              color="black"
-            />
+            <ActivityIndicator color="black" />
           </View>
         </View>
       </Modal>
@@ -98,7 +102,7 @@ export default function ({ navigation }) {
           <Button
             onPress={async () => {
               await removeToken();
-              await removeDevice()
+              await removeDevice();
               dispatch(addUser(null));
               navigation.navigate("Login");
             }}
@@ -111,12 +115,14 @@ export default function ({ navigation }) {
         lightColor="#eee"
         darkColor="rgba(255,255,255,0.1)"
       />
-      {!modalVisible && (
+      {!modalVisible && cubes ? (
         <DeliveryRoutes
           routeSelected={routeSelected}
           setRouteSelected={setRouteSelected}
           user={user}
         />
+      ) : (
+        <View></View>
       )}
       {routeSelected !== 0 ? (
         <View
@@ -129,7 +135,12 @@ export default function ({ navigation }) {
       )}
       {routeSelected !== 0 ? (
         <View style={styles.heightContainer}>
-          <ClientsPerRoute user={user} routeSelected={routeSelected} selectedUser={null} setSelectedUser={null}/>
+          <ClientsPerRoute
+            user={user}
+            routeSelected={routeSelected}
+            selectedUser={null}
+            setSelectedUser={null}
+          />
         </View>
       ) : (
         <Text></Text>
@@ -144,25 +155,33 @@ export default function ({ navigation }) {
         <Text></Text>
       )}
       {routeSelected !== 0 ? (
-        <View style={{marginLeft:actualDimensions.width*0.3}}>
-        <Button
-          onPress={() =>
-            navigation.navigate("selectedRouteOptions", { routeSelected })
-          }
-          title={"Continuar ruta: " + routeSelected}
-        />
+        <View style={{ marginLeft: actualDimensions.width * 0.3 }}>
+          <Button
+            onPress={() =>
+              navigation.navigate("selectedRouteOptions", { routeSelected })
+            }
+            title={"Continuar ruta: " + routeSelected}
+          />
         </View>
       ) : (
         <Text></Text>
       )}
-      <View
-        style={styles.goback}
-      >
-        <Button onPress={() =>{
-          setModalVisible(true)
-          syncData(user.distribuidoraId, setCubes, setMessage, setModalVisible, user.device.deviceId, dispatch, user)
-        }
-        } title="Sincronizar"/>
+      <View style={styles.goback}>
+        <Button
+          onPress={() => {
+            setModalVisible(true);
+            syncData(
+              user.distribuidoraId,
+              setCubes,
+              setMessage,
+              setModalVisible,
+              user.device.deviceId,
+              dispatch,
+              user
+            );
+          }}
+          title="Sincronizar"
+        />
       </View>
     </View>
   );
@@ -173,7 +192,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-  },  goback: {
+  },
+  goback: {
     position: "absolute",
     bottom: actualDimensions.height * 0.055,
     left: actualDimensions.width * 0.1,
@@ -184,12 +204,12 @@ const styles = StyleSheet.create({
     width: actualDimensions.width,
     justifyContent: "space-around",
   },
-  messageContainer:{
-    display:"flex",
-    flexDirection:"row",
-    justifyContent:"space-between",
-    alignContent:"center",
-    marginTop:actualDimensions.height*0.01
+  messageContainer: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignContent: "center",
+    marginTop: actualDimensions.height * 0.01,
   },
   title: {
     fontSize: actualDimensions.height * 0.035,

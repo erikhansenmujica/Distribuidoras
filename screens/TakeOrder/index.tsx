@@ -14,22 +14,34 @@ import ProductList from "./ProductList";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Checkbox from "expo-checkbox";
 import AddedProductsList from "./AddedProductsList";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "../../store/reducers";
 import { setNewOrder } from "../../store/actions/orders";
 import moment from "moment";
 
 export default function ({ route, navigation }) {
-  const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user.data);
   const [loading, setLoading] = React.useState(false);
   const [selectedProducts, setSelectedProducts] = React.useState([]);
-  const [keyboardStatus, setKeyboardStatus] = React.useState(null);
   const [section, setSection] = React.useState(1);
   const [date, setDate] = React.useState(new Date());
   const [show, setShow] = React.useState(false);
   const [tilde, setTilde] = React.useState(1);
+  const [hideList, setHideList] = React.useState(false);
+  const [hideSelected, setHideSelected] = React.useState(false);
+  React.useEffect(() => {
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setHideList(false);
+        setHideSelected(false);
+      }
+    );
 
+    return () => {
+      keyboardDidHideListener.remove();
+    };
+  }, []);
   const hora_inicio = moment().format("HH:mm");
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -40,20 +52,6 @@ export default function ({ route, navigation }) {
   const showMode = (currentMode) => {
     setShow(true);
   };
-
-  React.useEffect(() => {
-    const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
-      setKeyboardStatus(true);
-    });
-    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
-      setKeyboardStatus(null);
-    });
-
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, []);
 
   function resume() {
     const res = {
@@ -108,7 +106,8 @@ export default function ({ route, navigation }) {
   ) : section === 1 ? (
     <View style={styles.container}>
       <View style={styles.firstBoxContainer}>
-        <Text style={styles.title}>Pedido de {client.nombre}</Text>
+        <Text style={styles.title}> {client.nombre}</Text>
+        <Text style={styles.saldo}>(saldo actual: {client.saldo})</Text>
         <View style={styles.subtitleContainer}>
           <TouchableOpacity
             onPress={() => navigation.navigate("ClientHistorical", { client })}
@@ -117,7 +116,6 @@ export default function ({ route, navigation }) {
               <Text style={styles.text}>Pedidos históricos</Text>
             </View>
           </TouchableOpacity>
-          <Text style={styles.saldo}>(saldo actual: {client.saldo})</Text>
           <TouchableOpacity
             onPress={() =>
               navigation.navigate("Payment", {
@@ -132,16 +130,18 @@ export default function ({ route, navigation }) {
           </TouchableOpacity>
         </View>
       </View>
-
-      <View style={styles.productsContainer}>
-        <ProductList
-          navigation={navigation}
-          route={route}
-          selectedProducts={selectedProducts}
-          setSelectedProducts={setSelectedProducts}
-        />
-      </View>
-      {!keyboardStatus && (
+      {!hideList && (
+        <View style={styles.productsContainer}>
+          <ProductList
+            navigation={navigation}
+            route={route}
+            selectedProducts={selectedProducts}
+            setSelectedProducts={setSelectedProducts}
+            setHideSelected={setHideSelected}
+          />
+        </View>
+      )}
+      {!hideSelected && (
         <View style={styles.addedProductsContainer}>
           <AddedProductsList
             selectedProducts={selectedProducts}
@@ -149,93 +149,87 @@ export default function ({ route, navigation }) {
             setSection={setSection}
             section={section}
             closeOrder={closeOrder}
+            setHideList={setHideList}
           />
         </View>
       )}
-
       <View style={styles.goback}>
         <Button onPress={() => navigation.goBack()} title="volver"></Button>
       </View>
     </View>
   ) : (
     <View style={styles.container}>
-      {!keyboardStatus && (
+      <View
+        style={{
+          ...styles.addedProductsContainer,
+          marginTop: actualDimensions.height * 0.01,
+          width: actualDimensions.width * 0.8,
+          alignItems: "center",
+        }}
+      >
+        <Text style={styles.title}>Resumen de pedido:</Text>
         <View
           style={{
-            ...styles.addedProductsContainer,
-            marginTop: actualDimensions.height * 0.01,
-            width: actualDimensions.width * 0.8,
-            alignItems: "center",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
           }}
         >
-          <Text style={styles.title}>Resumen de pedido:</Text>
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-            }}
-          >
-            <Text style={{ flex: 1, fontWeight: "bold" }}>
-              Total de articulos:
-              <Text >
-                {selectedProducts.length}
-              </Text>
-            </Text>
-            <Text style={{ flex: 1, fontWeight: "bold" }}>
-              Total de unidades:
-              <Text >{resume().unidades}</Text>
-            </Text>
-          </View>
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-            }}
-          >
-            <Text style={{ flex: 1, fontWeight: "bold" }}>
-              Neto:
-              <Text >{round(resume().neto)}</Text>
-            </Text>
-            <Text style={{ flex: 1, fontWeight: "bold" }}>
-              IVA:
-              <Text >{round(resume().iva)}</Text>
-            </Text>
-          </View>
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-            }}
-          >
-            <Text style={{ flex: 1, fontWeight: "bold" }}>
-              Total:
-              <Text>
-                {round(resume().total)}
-              </Text>
-            </Text>
-            <Text style={{ flex: 1, fontWeight: "bold" }}>
-              Fecha:
-              <Text >
-                {date.toString().split(" ").splice(0, 4).join(" ")}
-              </Text>
-            </Text>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={{...styles.paragraph, fontWeight:"bold"}}>Entrega resumen de cuenta</Text>
-            <Checkbox
-              style={styles.checkbox}
-              value={tilde ? true : false}
-              onValueChange={() => setTilde(tilde ? 0 : 1)}
-              color={tilde ? "#4630EB" : undefined}
-            />
-          </View>
+          <Text style={{ flex: 1, fontWeight: "bold" }}>
+            Total de articulos:
+            <Text>{selectedProducts.length}</Text>
+          </Text>
+          <Text style={{ flex: 1, fontWeight: "bold" }}>
+            Total de unidades:
+            <Text>{resume().unidades}</Text>
+          </Text>
         </View>
-      )}
-      <View style={{marginTop:-actualDimensions.height*0.04}}>
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text style={{ flex: 1, fontWeight: "bold" }}>
+            Neto:
+            <Text>{round(resume().neto)}</Text>
+          </Text>
+          <Text style={{ flex: 1, fontWeight: "bold" }}>
+            IVA:
+            <Text>{round(resume().iva)}</Text>
+          </Text>
+        </View>
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text style={{ flex: 1, fontWeight: "bold" }}>
+            Total:
+            <Text>{round(resume().total)}</Text>
+          </Text>
+          <Text style={{ flex: 1, fontWeight: "bold" }}>
+            Fecha:
+            <Text>{date.toString().split(" ").splice(0, 4).join(" ")}</Text>
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={{ ...styles.paragraph, fontWeight: "bold" }}>
+            Entrega resumen de cuenta
+          </Text>
+          <Checkbox
+            style={styles.checkbox}
+            value={tilde ? true : false}
+            onValueChange={() => setTilde(tilde ? 0 : 1)}
+            color={tilde ? "#4630EB" : undefined}
+          />
+        </View>
+      </View>
+      <View style={{ marginTop: -actualDimensions.height * 0.04 }}>
         <Button onPress={showMode} title="Seleccionar fecha" />
       </View>
       <View
@@ -249,6 +243,7 @@ export default function ({ route, navigation }) {
           setSelectedProducts={setSelectedProducts}
           setSection={setSection}
           section={section}
+          setHideList={setHideList}
           closeOrder={closeOrder}
         />
       </View>
@@ -287,11 +282,9 @@ const styles = StyleSheet.create({
   },
   productsContainer: {
     maxHeight: actualDimensions.height * 0.54,
-    marginTop: -actualDimensions.height * 0.02,
   },
   addedProductsContainer: {
     maxHeight: actualDimensions.height * 0.3,
-    marginTop: -actualDimensions.height * 0.02,
   },
   horizontal: {
     flexDirection: "row",
@@ -307,17 +300,16 @@ const styles = StyleSheet.create({
   text: {
     textAlign: "center",
     color: "white",
-    fontSize: actualDimensions.height * 0.021,
+    fontSize: actualDimensions.height * 0.018,
   },
   title: {
     fontSize: actualDimensions.height * 0.023,
     fontWeight: "bold",
-    marginBottom: actualDimensions.height * 0.02,
+    marginBottom: actualDimensions.height * 0.002,
   },
   saldo: {
     fontSize: actualDimensions.height * 0.02,
     fontWeight: "bold",
-    marginBottom: actualDimensions.height * 0.02,
     color: "green",
   },
   separator: {

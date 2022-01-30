@@ -15,17 +15,49 @@ import Loading from "../../components/Loading";
 import { useDispatch, useSelector } from "react-redux";
 import { addProducts, fetchProducts } from "../../store/actions/products";
 import { RootState } from "../../store/reducers";
+import Checkbox from "expo-checkbox";
 
-const Item = ({ c, setSelectedProduct, selectedProduct }) => {
+const Item = ({
+  c,
+  setSelectedProduct,
+  selectedProduct,
+  manyProducts,
+  setManyProducts,
+}) => {
+  const isSelected = manyProducts.filter((p) => p.codigo === c.codigo)[0];
   return (
-    <TouchableOpacity onPress={() => setSelectedProduct(c)}>
+    <TouchableOpacity
+      onPress={() => !manyProducts.length && setSelectedProduct(c)}
+    >
       <View
         style={
-          selectedProduct.codigo && selectedProduct.codigo === c.codigo
+          (selectedProduct.codigo &&
+            selectedProduct.codigo === c.codigo &&
+            !isSelected) ||
+          isSelected
             ? styles.selectedBox
             : styles.boxes
         }
       >
+        <Checkbox
+          value={isSelected ? true : false}
+          onChange={() => {
+            if (!isSelected) {
+              setManyProducts([...manyProducts, c]);
+              setSelectedProduct({ codigo: null });
+              if (
+                selectedProduct.codigo &&
+                selectedProduct.codigo === c.codigo
+              ) {
+                setSelectedProduct({ codigo: null });
+              }
+            } else {
+              setManyProducts(
+                manyProducts.filter((p) => c.codigo !== p.codigo)
+              );
+            }
+          }}
+        />
         <Text style={styles.descriptionColumn}>{c.descripcion}</Text>
         <Text style={styles.priceColumn}>{c.precio_venta}</Text>
         <Text style={styles.idColumn}>{c.codigo}</Text>
@@ -40,18 +72,19 @@ export default function ({
   navigation,
   selectedProducts,
   setSelectedProducts,
+  setHideSelected,
 }) {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user.data);
   const products = useSelector((state: RootState) => state.products.all);
   const [loading, setLoading] = React.useState(false);
   const [prod, setProd] = React.useState([]);
-  const [quantity, setQuantity] = React.useState("1")
+  const [quantity, setQuantity] = React.useState("1");
   const [selectedProduct, setSelectedProduct] = React.useState({
     codigo: null,
   });
+  const [manyProducts, setManyProducts] = React.useState([]);
   const [modalVisible, setModalVisible] = React.useState(false);
-
   React.useEffect(() => {
     user && dispatch(fetchProducts(user.distribuidoraId, setLoading));
   }, []);
@@ -72,7 +105,6 @@ export default function ({
       }
     } else if (!name && !code) setProd([]);
   };
-
   return loading ? (
     <Loading title="" />
   ) : !products.length || (prod[0] && prod[0] === 1) ? (
@@ -86,6 +118,7 @@ export default function ({
             onChangeText={(e) => {
               filterBy(e, null);
             }}
+            onFocus={() => setHideSelected(true)}
           ></TextInput>
         </View>
         <View style={styles.inputButtonContainerC}>
@@ -95,6 +128,7 @@ export default function ({
             onChangeText={(e) => {
               filterBy(null, e);
             }}
+            onFocus={() => setHideSelected(true)}
           ></TextInput>
         </View>
       </View>
@@ -108,6 +142,7 @@ export default function ({
           <TextInput
             placeholder="Por nombre"
             style={styles.inputBuscar}
+            onFocus={() => setHideSelected(true)}
             onChangeText={(e) => {
               filterBy(e, null);
             }}
@@ -116,6 +151,7 @@ export default function ({
         <View style={styles.inputButtonContainerC}>
           <TextInput
             placeholder="Por codigo"
+            onFocus={() => setHideSelected(true)}
             style={styles.inputCBuscar}
             onChangeText={(e) => {
               filterBy(null, e);
@@ -136,13 +172,15 @@ export default function ({
         initialNumToRender={6}
         renderItem={({ item }) => (
           <Item
+            manyProducts={manyProducts}
+            setManyProducts={setManyProducts}
             c={item}
             setSelectedProduct={setSelectedProduct}
             selectedProduct={selectedProduct}
           />
         )}
         contentContainerStyle={styles.container}
-        keyExtractor={(item,i) => i.toString()}
+        keyExtractor={(item, i) => i.toString()}
       ></VirtualizedList>
       <Modal
         animationType="slide"
@@ -154,8 +192,15 @@ export default function ({
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>Añadir cantidad de producto</Text>
-            <TextInput style={styles.inputCantidad} defaultValue="1" onChangeText={(e)=>setQuantity(e)} keyboardType="numeric" />
+            <Text style={styles.modalText}>
+              Añadir cantidad para los productos
+            </Text>
+            <TextInput
+              style={styles.inputCantidad}
+              defaultValue="1"
+              onChangeText={(e) => setQuantity(e)}
+              keyboardType="numeric"
+            />
             <View
               style={{
                 display: "flex",
@@ -174,8 +219,13 @@ export default function ({
               <TouchableHighlight
                 style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
                 onPress={(e) => {
-                  setSelectedProducts([...selectedProducts, {...selectedProduct, quantity:parseInt(quantity)}]);
-                  setQuantity("1")
+                  const prods = manyProducts.map((p) => {
+                    p.quantity = parseInt(quantity);
+                    return JSON.parse(JSON.stringify(p));
+                  });
+                  setSelectedProducts([...selectedProducts, ...prods]);
+                  setQuantity("1");
+                  setManyProducts([]);
                   setModalVisible(!modalVisible);
                 }}
               >
@@ -188,14 +238,15 @@ export default function ({
       <Button
         title="agregar"
         onPress={() => {
-          if (
-            selectedProduct.codigo &&
-            !selectedProducts.filter(
-              (p) => p.codigo === selectedProduct.codigo
-            )[0]
-          ) {
+          if (selectedProduct.codigo && !manyProducts.length) {
+            setSelectedProducts([
+              ...selectedProducts,
+              JSON.parse(JSON.stringify({ ...selectedProduct, quantity: 1 })),
+            ]);
+            setQuantity("1");
+          } else if (manyProducts.length) {
             setModalVisible(true);
-          } else alert("Producto ya agregado.");
+          }
         }}
       ></Button>
     </View>
@@ -216,8 +267,8 @@ const styles = StyleSheet.create({
   },
   centerText: {
     textAlign: "center",
-    fontSize: actualDimensions.height * 0.027,
-    marginBottom: actualDimensions.height * 0.02,
+    fontSize: actualDimensions.height * 0.02,
+    marginBottom: actualDimensions.height * 0.01,
   },
   pages: {
     width: actualDimensions.width * 0.08,

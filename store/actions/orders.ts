@@ -231,21 +231,6 @@ export const updateOrder =
   (company: any, body: any, setLoading: any, setModalVisible: any) =>
   async (dispatch: any) => {
     setLoading(true);
-    // let res: any;
-    // try {
-    //   res = await axios.post(ApiUrl + "/route/update/order/" + company, body);
-    // } catch (error) {
-    //   setLoading(false);
-    //   console.log(error);
-    //   alert("Error de conexión");
-    //   return;
-    // }
-    // console.log(res.data);
-    // if (res.data.error) {
-    //   setLoading(false);
-    //   alert(res.data.error);
-    //   return;
-    // }
     db.transaction((tx) =>
       tx.executeSql(
         "UPDATE tbl_pedidos_moviles_para_facturar SET ruta = " +
@@ -302,7 +287,7 @@ export function closeOrders(setLoading, navigation, distribuidora) {
                     res = await axios.post(
                       ApiUrl + "/sync/appdata/" + distribuidora,
                       {
-                        "tbl_pedidos_moviles_para_facturar": ordersWContent,
+                        tbl_pedidos_moviles_para_facturar: ordersWContent,
                       }
                     );
                   } catch (error) {
